@@ -77,7 +77,26 @@ export async function generateImage(req: ImageRequest): Promise<ImageResult> {
   const svgAbs = publicPath(...dir, `${req.name}.svg`)
   const svgUrl = publicUrl(...dir, `${req.name}.svg`)
 
-  if (config.image === 'fal-flux' && config.falKey) {
+  const NANO_ASPECT = { portrait: '3:4', landscape: '16:9', vertical: '9:16' } as const
+
+  if (config.image === 'fal-nano' && config.falKey) {
+    try {
+      log('image', `nano-banana ← ${req.name}`)
+      const json = await falRun<{ images?: { url: string }[] }>(config.falNanoModel, {
+        prompt: `${req.prompt} Vertical ${NANO_ASPECT[req.ratio]} cinematic composition.`,
+        num_images: 1,
+        aspect_ratio: NANO_ASPECT[req.ratio],
+      })
+      const remote = json.images?.[0]?.url
+      if (!remote) throw new Error('nano: no image url')
+      await writeBinary(pngAbs, await fetchBytes(remote))
+      return { url: pngUrl, remote }
+    } catch (e) {
+      log('image', `nano failed (${(e as Error).message}); flux fallback`)
+    }
+  }
+
+  if ((config.image === 'fal-flux' || config.image === 'fal-nano') && config.falKey) {
     try {
       log('image', `flux ← ${req.name}`)
       const json = await falRun<{ images?: { url: string }[] }>(config.falImageModel, {
