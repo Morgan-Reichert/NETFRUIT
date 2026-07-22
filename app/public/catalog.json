@@ -1,5 +1,45 @@
 [
   {
+    "id": "overripe",
+    "title": "Overripe",
+    "fruit": "banana",
+    "year": 2026,
+    "maturity": "16+",
+    "seasons": 1,
+    "match": 98,
+    "genres": [
+      "Dark Comedy",
+      "Satire",
+      "AI Original"
+    ],
+    "tags": [
+      "Biting",
+      "Bingeable"
+    ],
+    "synopsis": "On FruitTok, relevance is life. Chad Banana — a fading star rotting in real time — sells his soul to stay fresh. A savage satire of fame, filters and the fear of going overripe.",
+    "runtime": "5 episodes",
+    "generated": true,
+    "newBadge": true,
+    "featured": true,
+    "posterUrl": "/generated/overripe/poster.jpg",
+    "episodeManifest": "/generated/overripe/e1/episode.json",
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Best Before",
+        "manifest": "/generated/overripe/e1/episode.json",
+        "durationSec": 10
+      },
+      {
+        "number": 2,
+        "title": "Filtered",
+        "manifest": "/generated/overripe/e2/episode.json",
+        "durationSec": 6
+      }
+    ],
+    "producedBy": "grok (manual)"
+  },
+  {
     "id": "blood-and-grape",
     "title": "Blood and Grape",
     "fruit": "grape",

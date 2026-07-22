@@ -39,7 +39,10 @@ interface Manifest {
   title: string
   shots: Shot[]
   langs?: Lang[]
-  videoUrl: string | null
+  videoUrl?: string | null
+  /** True for full-episode videos with their own baked audio (e.g. Grok clips):
+   *  play the video unmuted, no overlaid music/voice/captions, advance on end. */
+  bakedAudio?: boolean
 }
 
 const capOf = (s: Shot, l: Lang) => s.captions?.[l] ?? s.caption ?? ''
@@ -94,7 +97,7 @@ export default function EpisodePlayer({
   useEffect(() => {
     const a = musicRef.current
     if (!a) return
-    if (music && !paused && !done && manifest) a.play().catch(() => {})
+    if (music && !paused && !done && manifest && !manifest.bakedAudio) a.play().catch(() => {})
     else a.pause()
   }, [music, paused, done, manifest])
 
@@ -159,6 +162,13 @@ export default function EpisodePlayer({
     let advanced = false
     const go = () => { if (advanced) return; advanced = true; next() }
 
+    // Full-episode baked-audio videos advance on their own 'ended' event; we only
+    // keep a generous fallback timer here in case 'ended' never fires.
+    if (manifest.bakedAudio) {
+      timerRef.current = window.setTimeout(go, ((shot.durationSec || 8) + 3) / speed * 1000)
+      return clearTimer
+    }
+
     const vurl = voiceOf(shot, audioLang)
     // Duck the background music while a line is spoken, restore it after.
     if (musicRef.current) musicRef.current.volume = vurl ? 0.12 : 0.24
@@ -190,10 +200,11 @@ export default function EpisodePlayer({
 
   const restart = () => { setI(0); setShown(0); setDone(false); setPaused(false) }
 
+  const baked = !!manifest?.bakedAudio
   const shot = manifest?.shots[i]
   const visible = manifest?.shots[shown]
   const total = manifest?.shots.length ?? 0
-  const subtitle = shot && subLang !== 'off' ? capOf(shot, subLang) : ''
+  const subtitle = !baked && shot && subLang !== 'off' ? capOf(shot, subLang) : ''
   const filter = QUALITY_FILTER[quality]
 
   return (
@@ -219,7 +230,11 @@ export default function EpisodePlayer({
                       src={visible.clipUrl}
                       className="h-full w-full bg-black object-contain"
                       style={{ filter }}
-                      autoPlay muted playsInline loop
+                      autoPlay
+                      muted={!baked}
+                      loop={!baked}
+                      playsInline
+                      onEnded={baked ? () => next() : undefined}
                     />
                   ) : (
                     <img
