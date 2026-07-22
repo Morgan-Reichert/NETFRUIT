@@ -20,3 +20,6 @@ app/.env
 
 # Scratch
 scratchpad/
+
+# Raw source video exports (kept local; the app copies used in app/public/generated)
+series/
