@@ -51,7 +51,9 @@ export interface AgentConfig {
   openaiKey?: string
   elevenKey?: string
   elevenVoiceId: string
-  /** How many shots per episode when the LLM step is mocked. */
+  clipDurationSec: number
+  episodeMinSec: number
+  /** How many shots per episode. */
   shotsPerEpisode: number
   outDir: string // public dir that Vite serves
 }
@@ -82,7 +84,8 @@ export const config: AgentConfig = {
   falKey: fal,
   falVideoModel: env.NETFRUIT_FAL_VIDEO || 'fal-ai/ltx-video/image-to-video',
   falTextModel: env.NETFRUIT_FAL_TEXT || 'openai/gpt-4o',
-  falImageModel: env.NETFRUIT_FAL_IMAGE || 'fal-ai/flux/dev',
+  // flux/schnell: ~10× cheaper than /dev, still great for the stylized mascots.
+  falImageModel: env.NETFRUIT_FAL_IMAGE || 'fal-ai/flux/schnell',
   falTTSModel: env.NETFRUIT_FAL_TTS || 'fal-ai/elevenlabs/tts/multilingual-v2',
   falTalkModel: env.NETFRUIT_FAL_TALK || 'fal-ai/sadtalker',
   falKlingModel: env.NETFRUIT_FAL_KLING || 'fal-ai/kling-video/v1.6/standard/image-to-video',
@@ -95,7 +98,13 @@ export const config: AgentConfig = {
   elevenKey: env.ELEVENLABS_API_KEY,
   elevenVoiceId: env.ELEVENLABS_VOICE_ID || 'Rachel',
 
-  shotsPerEpisode: Number(env.NETFRUIT_SHOTS || 8),
+  // Episode length: aim for >= 3 min. With ~10s clips that's ~18 scenes.
+  // Fewer, longer clips = big cost saving vs many 5s clips.
+  clipDurationSec: Number(env.NETFRUIT_CLIP_SEC || 10),
+  episodeMinSec: Number(env.NETFRUIT_EPISODE_MIN_SEC || 180),
+  shotsPerEpisode: Number(
+    env.NETFRUIT_SHOTS || Math.ceil(Number(env.NETFRUIT_EPISODE_MIN_SEC || 180) / Number(env.NETFRUIT_CLIP_SEC || 10)),
+  ),
   outDir: env.NETFRUIT_OUT || new URL('../public', import.meta.url).pathname,
 }
 

@@ -51,12 +51,39 @@ export default function EpisodePlayer({
   const [speed, setSpeed] = useState(1)
   const [quality, setQuality] = useState<Quality>('auto')
   const [settings, setSettings] = useState(false)
+  // `shown` is the scene actually on screen. It only advances to `i` once the
+  // next clip is buffered, so scenes crossfade with no black flash.
+  const [shown, setShown] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const timerRef = useRef<number | null>(null)
 
+  // Preload the target scene, then promote it (crossfade in).
   useEffect(() => {
-    setManifest(null); setI(0); setDone(false); setPaused(false)
+    if (!manifest || i === shown) return
+    const s = manifest.shots[i]
+    if (!s) return
+    let cancelled = false
+    const promote = () => !cancelled && setShown(i)
+    let cleanup: (() => void) | undefined
+    if (s.clipUrl) {
+      const v = document.createElement('video')
+      v.preload = 'auto'; v.muted = true; v.src = s.clipUrl
+      v.oncanplaythrough = promote
+      v.load()
+      const t = window.setTimeout(promote, 1800) // safety
+      cleanup = () => window.clearTimeout(t)
+    } else {
+      const img = new Image()
+      img.onload = promote; img.src = s.imageUrl
+      const t = window.setTimeout(promote, 1200)
+      cleanup = () => window.clearTimeout(t)
+    }
+    return () => { cancelled = true; cleanup?.() }
+  }, [i, shown, manifest])
+
+  useEffect(() => {
+    setManifest(null); setI(0); setShown(0); setDone(false); setPaused(false)
     if (!series?.episodeManifest) return
     let cancelled = false
     fetch(series.episodeManifest, { cache: 'no-store' })
@@ -103,7 +130,7 @@ export default function EpisodePlayer({
   // Keep video playbackRate in sync
   useEffect(() => {
     if (videoRef.current) videoRef.current.playbackRate = speed
-  }, [speed, i])
+  }, [speed, shown])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (settings ? setSettings(false) : onClose())
@@ -112,9 +139,10 @@ export default function EpisodePlayer({
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
   }, [series, onClose, settings])
 
-  const restart = () => { setI(0); setDone(false); setPaused(false) }
+  const restart = () => { setI(0); setShown(0); setDone(false); setPaused(false) }
 
   const shot = manifest?.shots[i]
+  const visible = manifest?.shots[shown]
   const total = manifest?.shots.length ?? 0
   const subtitle = shot && subLang !== 'off' ? capOf(shot, subLang) : ''
   const filter = QUALITY_FILTER[quality]
@@ -126,44 +154,54 @@ export default function EpisodePlayer({
           className="fixed inset-0 z-[110] flex flex-col bg-black"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         >
-          {/* Stage */}
-          <div className="relative flex-1 overflow-hidden">
-            {shot && (
-              <div key={i} className="absolute inset-0">
-                {shot.clipUrl ? (
-                  <video
-                    ref={videoRef}
-                    src={shot.clipUrl}
-                    className="h-full w-full bg-black object-contain"
-                    style={{ filter }}
-                    autoPlay muted playsInline loop
-                  />
-                ) : (
-                  <img
-                    src={shot.imageUrl} alt=""
-                    className="animate-kenburns h-full w-full object-cover"
-                    style={{ filter, ['--kb-dur' as string]: `${Math.max(shot.durationSec, 3) / speed}s` }}
-                  />
-                )}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+          {/* Stage — crossfading scene layers (no black flash between scenes) */}
+          <div className="relative flex-1 overflow-hidden bg-black">
+            <AnimatePresence>
+              {visible && (
+                <motion.div
+                  key={shown}
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6, ease: 'easeInOut' }}
+                >
+                  {visible.clipUrl ? (
+                    <video
+                      ref={videoRef}
+                      src={visible.clipUrl}
+                      className="h-full w-full bg-black object-contain"
+                      style={{ filter }}
+                      autoPlay muted playsInline loop
+                    />
+                  ) : (
+                    <img
+                      src={visible.imageUrl} alt=""
+                      className="animate-kenburns h-full w-full object-cover"
+                      style={{ filter, ['--kb-dur' as string]: `${Math.max(visible.durationSec, 3) / speed}s` }}
+                    />
+                  )}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-                {subtitle && (
-                  <motion.div
-                    key={'cap' + i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                    className="absolute inset-x-0 bottom-28 mx-auto max-w-3xl px-6 text-center"
-                  >
-                    {shot.speaker && shot.speaker !== 'Narrator' && (
-                      <span className="mb-1 inline-block rounded bg-fruit-red-bright/90 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-                        {shot.speaker}
-                      </span>
-                    )}
-                    <p className="font-display text-xl font-semibold text-cream text-shadow-cinema sm:text-2xl">
-                      {subtitle}
-                    </p>
-                  </motion.div>
-                )}
-              </div>
-            )}
+            {/* Subtitle layer (follows the audio scene) */}
+            <AnimatePresence mode="wait">
+              {subtitle && (
+                <motion.div
+                  key={'cap' + i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  className="pointer-events-none absolute inset-x-0 bottom-28 z-10 mx-auto max-w-3xl px-6 text-center"
+                >
+                  {shot?.speaker && shot.speaker !== 'Narrator' && (
+                    <span className="mb-1 inline-block rounded bg-fruit-red-bright/90 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+                      {shot.speaker}
+                    </span>
+                  )}
+                  <p className="font-display text-xl font-semibold text-cream text-shadow-cinema sm:text-2xl">
+                    {subtitle}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {!manifest && <div className="grid h-full place-items-center text-cream/60">Loading episode…</div>}
 

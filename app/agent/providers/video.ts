@@ -35,7 +35,7 @@ async function falKling(req: VideoRequest, absMp4: string, urlMp4: string) {
       `${req.prompt}. The character is talking animatedly, mouth moving, expressive gestures, ` +
       `lively camera. Smooth cinematic motion.`,
     image_url,
-    duration: '5',
+    duration: config.clipDurationSec >= 10 ? '10' : '5',
   })
   let videoUrl = kling.video?.url
   if (!videoUrl) throw new Error('kling: no video url')

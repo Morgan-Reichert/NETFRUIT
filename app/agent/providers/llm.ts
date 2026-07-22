@@ -61,7 +61,7 @@ function mockConcept(brief: Brief): Concept {
       speaker: b.speaker,
       visualPrompt: `${b.vp}, hyper-detailed, cinematic film still, volumetric light, film grain`,
       captions: { en: b.en, fr: b.fr, es: b.es } as Record<Lang, string>,
-      durationSec: 6,
+      durationSec: config.clipDurationSec,
     }
   })
 
@@ -117,7 +117,7 @@ Rules:
   fruit character front-facing (a cartoon fruit with a face — never a human person), face clearly
   visible, plus camera MOTION and ACTION (push-in, gesturing, slam, dramatic lighting). Keep each
   character's look consistent across shots. English only for title/synopsis/visualPrompt.
-- durationSec 5–8 per shot.`
+- durationSec 8-10 per shot. This is a full ~3-minute episode across all {{N}} beats — keep the momentum.`
 
 function userPrompt(brief: Brief): string {
   const name = FRUIT_LABEL[brief.fruit] ?? brief.fruit
