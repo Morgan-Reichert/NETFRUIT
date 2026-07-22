@@ -1,5 +1,30 @@
 [
   {
+    "id": "the-dragonfruit-heist",
+    "title": "The Dragonfruit Heist",
+    "fruit": "dragonfruit",
+    "year": 2026,
+    "maturity": "13+",
+    "seasons": 3,
+    "match": 94,
+    "genres": [
+      "Action",
+      "Fantasy",
+      "AI Original"
+    ],
+    "tags": [
+      "Heist",
+      "Epic Fantasy"
+    ],
+    "synopsis": "In a world where dragon jam is the ultimate prize, a daring team of fruit heroes embarks on an epic heist to steal the forbidden jam guarded by a mythical dragon.",
+    "runtime": "21 min",
+    "generated": true,
+    "newBadge": true,
+    "posterUrl": "/generated/the-dragonfruit-heist/poster.png",
+    "episodeManifest": "/generated/the-dragonfruit-heist/episode.json",
+    "producedBy": "llm:fal|img:fal-flux|vid:fal-kling|voice:fal-elevenlabs"
+  },
+  {
     "id": "berry-betrayal",
     "title": "Berry Betrayal",
     "fruit": "strawberry",

@@ -1,0 +1,62 @@
+{
+  "seriesId": "the-dragonfruit-heist",
+  "title": "The Dragonfruit Heist — Episode 1",
+  "logline": "In a world where dragon jam is the ultimate prize, a daring team of fruit heroes embarks on an epic heist to steal the forbidden jam guarded by a mythical dragon.",
+  "durationSec": 21,
+  "langs": [
+    "en",
+    "fr",
+    "es"
+  ],
+  "shots": [
+    {
+      "speaker": "Drake",
+      "imageUrl": "/generated/the-dragonfruit-heist/shot-0.png",
+      "clipUrl": "/generated/the-dragonfruit-heist/clip-0.mp4",
+      "voiceUrls": {
+        "en": "/generated/the-dragonfruit-heist/voice-0-en.mp3",
+        "fr": "/generated/the-dragonfruit-heist/voice-0-fr.mp3",
+        "es": "/generated/the-dragonfruit-heist/voice-0-es.mp3"
+      },
+      "captions": {
+        "en": "Tonight, we claim the forbidden jam!",
+        "fr": "Ce soir, nous revendiquons la confiture interdite!",
+        "es": "¡Esta noche, reclamamos la mermelada prohibida!"
+      },
+      "durationSec": 6
+    },
+    {
+      "speaker": "Lilah",
+      "imageUrl": "/generated/the-dragonfruit-heist/shot-1.png",
+      "clipUrl": "/generated/the-dragonfruit-heist/clip-1.mp4",
+      "voiceUrls": {
+        "en": "/generated/the-dragonfruit-heist/voice-1-en.mp3",
+        "fr": "/generated/the-dragonfruit-heist/voice-1-fr.mp3",
+        "es": "/generated/the-dragonfruit-heist/voice-1-es.mp3"
+      },
+      "captions": {
+        "en": "I've got a plan... but it’s risky!",
+        "fr": "J'ai un plan... mais c'est risqué!",
+        "es": "Tengo un plan... ¡pero es arriesgado!"
+      },
+      "durationSec": 7
+    },
+    {
+      "speaker": "Narrator",
+      "imageUrl": "/generated/the-dragonfruit-heist/shot-2.png",
+      "clipUrl": "/generated/the-dragonfruit-heist/clip-2.mp4",
+      "voiceUrls": {
+        "en": "/generated/the-dragonfruit-heist/voice-2-en.mp3",
+        "fr": "/generated/the-dragonfruit-heist/voice-2-fr.mp3",
+        "es": "/generated/the-dragonfruit-heist/voice-2-es.mp3"
+      },
+      "captions": {
+        "en": "But will they outwit the dragon’s fury?",
+        "fr": "Mais vont-ils déjouer la fureur du dragon?",
+        "es": "¿Pero superarán la furia del dragón?"
+      },
+      "durationSec": 8
+    }
+  ],
+  "videoUrl": "/generated/the-dragonfruit-heist/episode.mp4"
+}

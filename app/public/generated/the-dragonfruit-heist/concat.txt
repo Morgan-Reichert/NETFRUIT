@@ -1,0 +1,3 @@
+file '/Users/morganreichert/Desktop/NETFRUIT/app/public/generated/the-dragonfruit-heist/clip-0.mp4'
+file '/Users/morganreichert/Desktop/NETFRUIT/app/public/generated/the-dragonfruit-heist/clip-1.mp4'
+file '/Users/morganreichert/Desktop/NETFRUIT/app/public/generated/the-dragonfruit-heist/clip-2.mp4'
