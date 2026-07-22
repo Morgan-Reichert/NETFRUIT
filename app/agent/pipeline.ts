@@ -18,18 +18,19 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
   const fruit = concept.meta.fruit
   console.log(`\n🍓 Producing "${concept.meta.title}" (${fruit}) — ${id}`)
 
-  // Force the fruit-mascot look on EVERY image — the LLM's story prompts can
-  // drift toward humans (esp. "telenovela"), so we hard-prepend the style.
-  const mascot = (p: string) =>
-    `3D Pixar-style animated movie still of an anthropomorphic ${fruit} character — ` +
-    `a giant cute ${fruit} with a clear cartoon face (big expressive eyes, eyebrows, mouth) ` +
-    `and little arms and legs, absolutely NOT a human person. Scene: ${p}`
+  // Enforce the cinematic photoreal fruit-headed-humanoid style on every image
+  // (the LLM's prompts otherwise drift toward plain humans or flat cartoons).
+  const cinematic = (p: string) =>
+    `Cinematic photorealistic 3D animated feature-film still, Pixar/DreamWorks render quality, ` +
+    `dramatic movie lighting, richly detailed set, shallow depth of field, volumetric light. ` +
+    `Characters are fruit-headed humanoids (a fruit for a head on a human body, wearing clothes, ` +
+    `expressive face) — never plain humans. ${p}`
 
   // 1. Poster / key art
   const poster = await generateImage({
     seriesId: id,
     fruit,
-    prompt: mascot(concept.posterPrompt),
+    prompt: cinematic(concept.posterPrompt),
     name: 'poster',
     ratio: 'portrait',
   })
@@ -46,7 +47,7 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
     const image = await generateImage({
       seriesId: id,
       fruit,
-      prompt: mascot(shot.visualPrompt),
+      prompt: cinematic(shot.visualPrompt),
       name: `shot-${shot.index}`,
       ratio: 'vertical', // 9:16 TikTok-style
     })

@@ -108,16 +108,19 @@ Return ONLY minified JSON, no prose, matching EXACTLY:
  "shots":[{"speaker":str,"visualPrompt":str,"captions":{"en":str,"fr":str,"es":str},"durationSec":int}]}
 
 Rules:
-- 2 to 4 named CHARACTERS. Each is a Pixar-style 3D fruit MASCOT with a clearly visible
-  cartoon face — big expressive eyes, eyebrows, and an open mouth — and a little body/outfit.
-  Put that in "look". "voice" = one of: Roger, Sarah, George, Charlotte, Callum, Alice, Brian, Jessica (distinct per character).
-- Exactly {{N}} shots forming a real story arc: hook → rising tension → twist → CLIFFHANGER. Make it loufoque (zany), dramatic and suspenseful.
-- Each shot = ONE punchy spoken line by a character (use their name in "speaker"; use "Narrator" for narration). "captions" gives that line in EN, FR, ES — natural, idiomatic, funny (not literal).
-- CHARACTERS ARE ANTHROPOMORPHIC FRUITS, NEVER HUMANS. "visualPrompt" describes the SPEAKING
-  fruit character front-facing (a cartoon fruit with a face — never a human person), face clearly
-  visible, plus camera MOTION and ACTION (push-in, gesturing, slam, dramatic lighting). Keep each
+- 2 to 4 named CHARACTERS. Each is a FRUIT-HEADED HUMANOID: a specific fruit for a head on a
+  human-like body wearing clothes, photorealistic cinematic 3D (Pixar/DreamWorks quality), expressive
+  face. In "look" give fruit + outfit + body (e.g. "a pomegranate-headed mob boss in a velvet suit",
+  "a banana-headed miner in muddy overalls and a hard hat").
+  "voice" = one of: Roger, Sarah, George, Charlotte, Callum, Alice, Brian, Jessica (distinct per character).
+- Exactly {{N}} shots forming a real story arc: hook → rising tension → twist → CLIFFHANGER. Loufoque (zany), dramatic, suspenseful.
+- Each shot = ONE punchy spoken line (speaker's name; "Narrator" for narration). "captions" = that line in EN, FR, ES — natural, idiomatic, funny.
+- "visualPrompt" is a CINEMATIC FILM SHOT, not a portrait: describe the SCENE — which characters are
+  present (OFTEN 2+ TOGETHER, interacting), what they do, the richly detailed environment/setting, the
+  shot type (wide / medium / close-up) and dramatic movie lighting + camera motion. Make it feel like a
+  real animated feature film. Photorealistic 3D fruit-headed humanoids, NEVER plain humans. Keep every
   character's look consistent across shots. English only for title/synopsis/visualPrompt.
-- durationSec 8-10 per shot. This is a full ~3-minute episode across all {{N}} beats — keep the momentum.`
+- durationSec ~10 per shot; this is a ~1-minute episode across all {{N}} beats — keep the momentum.`
 
 function userPrompt(brief: Brief): string {
   const name = FRUIT_LABEL[brief.fruit] ?? brief.fruit
