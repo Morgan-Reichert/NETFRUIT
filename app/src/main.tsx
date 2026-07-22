@@ -6,6 +6,7 @@ import { UserProvider } from './lib/store'
 import { AuthProvider } from './lib/auth'
 import { ProfilesProvider, useProfiles } from './lib/profiles'
 import ProfileGate from './components/ProfileGate'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function Shell() {
   const { activeId } = useProfiles()
@@ -19,16 +20,25 @@ function Shell() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider>
-      <ProfilesProvider>
-        <Shell />
-      </ProfilesProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ProfilesProvider>
+          <Shell />
+        </ProfilesProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )
 
-// Register the PWA service worker (production builds only).
+// Register the PWA service worker (production only) and reload once when a new
+// version takes control, so an updated deploy never gets stuck behind a stale SW.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  let reloaded = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloaded) return
+    reloaded = true
+    location.reload()
+  })
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {})
   })
