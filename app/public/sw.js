@@ -1,5 +1,5 @@
 // NETFRUIT service worker — enables PWA install + basic offline shell.
-const CACHE = 'netfruit-v1'
+const CACHE = 'netfruit-v2'
 const SHELL = ['/', '/index.html', '/icons/icon-192.png', '/icons/icon-512.png']
 
 self.addEventListener('install', (e) => {
@@ -9,6 +9,34 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
+  )
+})
+
+// Web Push — show a notification when new content goes online.
+self.addEventListener('push', (e) => {
+  let data = { title: 'NETFRUIT', body: 'Something fresh just dropped 🍓', url: '/' }
+  try { if (e.data) data = { ...data, ...e.data.json() } } catch { /* text */ }
+  e.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      image: data.image,
+      data: { url: data.url || '/' },
+      vibrate: [80, 40, 80],
+      tag: data.tag || 'netfruit-drop',
+    }),
+  )
+})
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close()
+  const url = (e.notification.data && e.notification.data.url) || '/'
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
+      for (const c of cs) { if ('focus' in c) { c.navigate(url); return c.focus() } }
+      return self.clients.openWindow(url)
+    }),
   )
 })
 

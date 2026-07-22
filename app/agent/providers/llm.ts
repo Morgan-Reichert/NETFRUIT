@@ -209,6 +209,86 @@ async function falConcept(brief: Brief): Promise<Concept> {
   return parseConcept(String(res.output ?? ''), brief)
 }
 
+/* ------------------------- next episodes of a season ----------------------- */
+
+const EP_SYSTEM = `You are the writer for the ongoing NETFRUIT series "{{TITLE}}" ({{GENRES}}).
+Recurring CHARACTERS (keep them EXACTLY consistent — same fruit head, same outfit):
+{{CAST}}
+Story so far: {{PRIOR}}
+
+Write EPISODE {{EP}} as EXACTLY {{N}} shots continuing the saga: hook → escalation → twist → CLIFFHANGER.
+Loufoque, dramatic, suspenseful. Return ONLY minified JSON:
+{"episodeTitle":str,"summary":str(<=160 chars),
+ "shots":[{"speaker":str,"visualPrompt":str,"captions":{"en":str,"fr":str,"es":str},"durationSec":int}]}
+- Each shot = ONE spoken line by a named character (or "Narrator"). captions in EN/FR/ES, idiomatic.
+- "visualPrompt" = a CINEMATIC FILM SHOT with the relevant characters (often 2+ together) in a detailed
+  environment, shot type + lighting + motion. Photorealistic 3D fruit-headed humanoids, NEVER plain humans.
+- durationSec ~10 per shot.`
+
+function castBlock(chars: { name: string; look: string }[]) {
+  return chars.map((c) => `- ${c.name}: ${c.look}`).join('\n')
+}
+
+export interface EpisodeScript {
+  title: string
+  summary: string
+  shots: Concept['episode']['shots']
+}
+
+function parseShots(text: string): { title: string; summary: string; shots: any[] } {
+  const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1))
+  const shots = (json.shots ?? []).slice(0, config.shotsPerEpisode).map((s: any, i: number) => {
+    const c = s.captions ?? {}
+    const en = String(c.en ?? s.narration ?? '')
+    return {
+      index: i,
+      speaker: String(s.speaker ?? 'Narrator'),
+      visualPrompt: String(s.visualPrompt ?? ''),
+      captions: { en, fr: String(c.fr ?? en), es: String(c.es ?? en) } as Record<Lang, string>,
+      durationSec: Number(s.durationSec ?? 10),
+    }
+  })
+  return { title: String(json.episodeTitle ?? 'Episode'), summary: String(json.summary ?? ''), shots }
+}
+
+export async function generateEpisode(
+  bible: { title: string; genres: string[]; characters: { name: string; look: string; voice: string }[] },
+  epNumber: number,
+  priorSummary: string,
+): Promise<EpisodeScript> {
+  const sys = EP_SYSTEM
+    .replace('{{TITLE}}', bible.title)
+    .replace('{{GENRES}}', bible.genres.join(', '))
+    .replace('{{CAST}}', castBlock(bible.characters))
+    .replace('{{PRIOR}}', priorSummary || 'Episode 1 has just set everything in motion.')
+    .replaceAll('{{EP}}', String(epNumber))
+    .replaceAll('{{N}}', String(config.shotsPerEpisode))
+  const user = `Write episode ${epNumber} now. Return the JSON.`
+  try {
+    let text = ''
+    if (config.llm === 'fal' && config.falKey) {
+      const res = await falRun<{ output?: string }>('fal-ai/any-llm', { model: config.falTextModel, system_prompt: sys, prompt: user })
+      text = String(res.output ?? '')
+    } else if (config.llm === 'gemini' && config.geminiKey) {
+      text = await geminiText(sys, user)
+    } else {
+      throw new Error('no llm')
+    }
+    const p = parseShots(text)
+    return { title: p.title, summary: p.summary, shots: p.shots }
+  } catch (e) {
+    log('script', `episode ${epNumber} LLM failed (${(e as Error).message}); mock`)
+    // Mock fallback: reuse the concept mock shots
+    const shots = Array.from({ length: config.shotsPerEpisode }, (_, i) => ({
+      index: i, speaker: 'Narrator',
+      visualPrompt: `cinematic scene, episode ${epNumber} beat ${i + 1}`,
+      captions: { en: `Episode ${epNumber}, scene ${i + 1}.`, fr: `Épisode ${epNumber}, scène ${i + 1}.`, es: `Episodio ${epNumber}, escena ${i + 1}.` } as Record<Lang, string>,
+      durationSec: config.clipDurationSec,
+    }))
+    return { title: `${bible.title} — Episode ${epNumber}`, summary: '', shots }
+  }
+}
+
 export async function generateConcept(brief: Brief): Promise<Concept> {
   void FRUIT_THEMES
   if (config.llm === 'fal' && config.falKey) {

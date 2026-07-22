@@ -1,6 +1,6 @@
 import { config, providerSignature } from './config'
 import { runAgent } from './agent'
-import { produceSeries } from './pipeline'
+import { produceSeries, produceSeason } from './pipeline'
 import { readCatalog } from './catalog'
 import type { FruitKey } from '../src/data/series'
 
@@ -24,7 +24,12 @@ async function main() {
 
   const fruit = arg('--fruit') as FruitKey | undefined
   const hint = arg('--hint')
+  const season = arg('--season')
 
+  if (season && fruit) {
+    await produceSeason({ fruit, hint }, Number(season))
+    return
+  }
   if (fruit) {
     await produceSeries({ fruit, hint })
     return

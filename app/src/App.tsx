@@ -19,15 +19,18 @@ export default function App() {
   useCloudSync()
   const [selected, setSelected] = useState<Series | null>(null)
   const [playing, setPlaying] = useState<Series | null>(null)
+  const [playingEp, setPlayingEp] = useState(1)
   const [authOpen, setAuthOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [category, setCategory] = useState('All')
 
   // Play marks the title watched; generated titles open the episode player.
-  const handlePlay = (s: Series) => {
+  const handlePlay = (s: Series, epNum = 1) => {
     watch(s.id)
-    if (s.episodeManifest) setPlaying(s)
-    else setSelected(s)
+    if (s.episodeManifest || s.episodes?.length) {
+      setPlayingEp(epNum)
+      setPlaying(s)
+    } else setSelected(s)
   }
 
   // Feed reacts to every like / watch / list change, and to the async catalog load.
@@ -112,7 +115,7 @@ export default function App() {
         onOpen={setSelected}
         onPlay={handlePlay}
       />
-      <EpisodePlayer series={playing} onClose={() => setPlaying(null)} />
+      <EpisodePlayer series={playing} startEp={playingEp} onClose={() => setPlaying(null)} />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} onOpen={setSelected} />
     </div>

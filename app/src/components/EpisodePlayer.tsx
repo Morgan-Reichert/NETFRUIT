@@ -47,9 +47,11 @@ const voiceOf = (s: Shot, l: Lang) => s.voiceUrls?.[l] ?? s.voiceUrl ?? null
 
 export default function EpisodePlayer({
   series,
+  startEp = 1,
   onClose,
 }: {
   series: Series | null
+  startEp?: number
   onClose: () => void
 }) {
   const [manifest, setManifest] = useState<Manifest | null>(null)
@@ -64,7 +66,13 @@ export default function EpisodePlayer({
   // `shown` is the scene actually on screen. It only advances to `i` once the
   // next clip is buffered, so scenes crossfade with no black flash.
   const [shown, setShown] = useState(0)
+  const [ep, setEp] = useState(startEp)
   const [music, setMusic] = useState(true)
+
+  const episodeList = series?.episodes ?? []
+  const manifestUrl =
+    episodeList.find((e) => e.number === ep)?.manifest ?? series?.episodeManifest
+  const hasNext = episodeList.some((e) => e.number === ep + 1)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const musicRef = useRef<HTMLAudioElement | null>(null)
@@ -114,16 +122,20 @@ export default function EpisodePlayer({
     return () => { cancelled = true; cleanup?.() }
   }, [i, shown, manifest])
 
+  // Start at the requested episode whenever a new series opens.
+  useEffect(() => { setEp(startEp) }, [series, startEp])
+
+  // Load the current episode's manifest.
   useEffect(() => {
     setManifest(null); setI(0); setShown(0); setDone(false); setPaused(false)
-    if (!series?.episodeManifest) return
+    if (!series || !manifestUrl) return
     let cancelled = false
-    fetch(series.episodeManifest, { cache: 'no-store' })
+    fetch(manifestUrl, { cache: 'no-store' })
       .then((r) => r.json())
       .then((m: Manifest) => !cancelled && setManifest(m))
       .catch(() => !cancelled && setManifest({ title: series.title, shots: [], videoUrl: null }))
     return () => { cancelled = true }
-  }, [series])
+  }, [series, manifestUrl])
 
   const langs: Lang[] = manifest?.langs ?? ['en', 'fr', 'es']
 
@@ -252,9 +264,19 @@ export default function EpisodePlayer({
                 <div className="text-center">
                   <p className="font-display text-3xl font-extrabold text-cream">To be continued…</p>
                   <p className="mt-1 text-cream/60">{manifest?.title}</p>
-                  <button onClick={restart} className="mt-5 inline-flex items-center gap-2 rounded-full bg-fruit-red-bright px-6 py-2.5 font-bold text-white transition hover:brightness-110">
-                    <ReplayIcon size={18} /> Replay
-                  </button>
+                  <div className="mt-5 flex items-center justify-center gap-3">
+                    {hasNext && (
+                      <button
+                        onClick={() => setEp((n) => n + 1)}
+                        className="inline-flex items-center gap-2 rounded-full bg-fruit-red-bright px-6 py-2.5 font-bold text-white transition hover:brightness-110"
+                      >
+                        <PlayIcon size={18} /> Next episode
+                      </button>
+                    )}
+                    <button onClick={restart} className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 font-bold transition ${hasNext ? 'border border-white/25 text-cream hover:border-white/50' : 'bg-fruit-red-bright text-white hover:brightness-110'}`}>
+                      <ReplayIcon size={18} /> Replay
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

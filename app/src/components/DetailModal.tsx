@@ -15,7 +15,7 @@ export default function DetailModal({
   series: Series | null
   onClose: () => void
   onOpen: (s: Series) => void
-  onPlay: (s: Series) => void
+  onPlay: (s: Series, ep?: number) => void
 }) {
   const { state, like, dislike, toggleList } = useUser()
 
@@ -138,29 +138,36 @@ export default function DetailModal({
               </div>
             </div>
 
-            {/* Episodes preview */}
-            <div className="px-6 pb-4 sm:px-8">
-              <h3 className="font-display text-lg font-bold text-cream">Episodes · Season 1</h3>
-              <div className="mt-3 divide-y divide-white/5 rounded-xl border border-white/5">
-                {[1, 2, 3, 4].map((n) => (
-                  <div key={n} className="flex items-center gap-4 p-3 transition hover:bg-white/5">
-                    <span className="w-5 text-center text-lg font-bold text-cream/40">{n}</span>
-                    <div className="h-12 w-20 shrink-0 overflow-hidden rounded-md">
-                      <Poster series={series} ratio="landscape" showTitle={false} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-cream">
-                        {series.title} — Chapter {n}
-                      </p>
-                      <p className="truncate text-xs text-cream/50">
-                        The seeds of the story ripen further. AI-generated in stunning detail.
-                      </p>
-                    </div>
-                    <span className="text-xs text-cream/50">{series.runtime.split(' ')[0]}m</span>
-                  </div>
-                ))}
+            {/* Episodes */}
+            {(series.episodes?.length ?? 0) > 0 && (
+              <div className="px-6 pb-4 sm:px-8">
+                <h3 className="font-display text-lg font-bold text-cream">
+                  Episodes · Season 1 <span className="text-cream/40">({series.episodes!.length})</span>
+                </h3>
+                <div className="mt-3 divide-y divide-white/5 rounded-xl border border-white/5">
+                  {series.episodes!.map((e) => (
+                    <button
+                      key={e.number}
+                      onClick={() => onPlay(series, e.number)}
+                      className="flex w-full items-center gap-4 p-3 text-left transition hover:bg-white/5"
+                    >
+                      <span className="w-5 text-center text-lg font-bold text-cream/40">{e.number}</span>
+                      <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md">
+                        <Poster series={series} ratio="landscape" showTitle={false} />
+                        <span className="absolute inset-0 grid place-items-center bg-black/30 text-cream">
+                          <PlayIcon size={18} />
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-cream">{e.title}</p>
+                        <p className="truncate text-xs text-cream/50">Episode {e.number} · AI-generated</p>
+                      </div>
+                      <span className="text-xs text-cream/50">{Math.max(1, Math.round(e.durationSec / 60))}m</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* More like this */}
             <div className="p-6 sm:p-8">

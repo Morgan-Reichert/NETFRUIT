@@ -57,11 +57,19 @@ export interface ShotAssets {
   durationSec: number
 }
 
+export interface EpisodeRef {
+  number: number
+  title: string
+  manifest: string // path to that episode's episode.json
+  durationSec: number
+}
+
 /** The published record — a `Series` enriched with generated media. */
 export interface GeneratedSeries extends Series {
   generated: true
   posterUrl: string
-  episodeManifest: string // path to episode.json
+  episodeManifest: string // path to episode 1's episode.json (back-compat)
+  episodes?: EpisodeRef[] // full season (episode 1..N)
   producedBy: string // provider signature, for provenance
 }
 

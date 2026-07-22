@@ -1,5 +1,5 @@
 import { log } from '../config'
-import { LANGS, type Concept, type Lang, type ShotAssets } from '../types'
+import { LANGS, type Lang, type ShotAssets } from '../types'
 import { publicPath, publicUrl, writeText } from '../util'
 
 export interface EpisodeManifest {
@@ -27,16 +27,18 @@ export interface EpisodeManifest {
  * a single episode.mp4; otherwise the app plays the manifest timeline directly.
  */
 export async function assembleEpisode(
-  concept: Concept,
+  dirId: string,
+  title: string,
+  logline: string,
   shots: ShotAssets[],
 ): Promise<string> {
-  const seriesId = concept.meta.id
+  const seriesId = dirId
   const dir = ['generated', seriesId]
 
   const manifest: EpisodeManifest = {
     seriesId,
-    title: concept.episode.title,
-    logline: concept.episode.logline,
+    title,
+    logline,
     durationSec: shots.reduce((a, s) => a + s.durationSec, 0),
     langs: LANGS,
     shots: shots.map((s) => ({

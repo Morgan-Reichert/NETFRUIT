@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ChevronDown } from './icons'
 import { useAuth } from '../lib/auth'
 import { avatarUrl, useProfiles } from '../lib/profiles'
+import { enablePush, isPushEnabled, pushSupported } from '../lib/push'
 
 const LINKS = ['Home', 'Series', 'New & Ripe', 'My Basket', 'Categories']
 
@@ -9,8 +10,16 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('Home')
   const [menu, setMenu] = useState(false)
+  const [pushOn, setPushOn] = useState(false)
   const { user, signOut } = useAuth()
   const { active: profile, switchProfile } = useProfiles()
+
+  useEffect(() => { isPushEnabled().then(setPushOn) }, [])
+  const toggleNotifs = async () => {
+    if (pushOn) return
+    const r = await enablePush()
+    if (r.ok) setPushOn(true)
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -112,6 +121,15 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
                   >
                     Switch profile
                   </button>
+                  {pushSupported() && (
+                    <button
+                      onClick={toggleNotifs}
+                      className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
+                    >
+                      <span>Notifications</span>
+                      <span className={pushOn ? 'text-lime' : 'text-cream/40'}>{pushOn ? 'On' : 'Enable'}</span>
+                    </button>
+                  )}
                   {user ? (
                     <button
                       onClick={() => { setMenu(false); signOut() }}
