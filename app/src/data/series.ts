@@ -335,9 +335,9 @@ export function registerDynamic(list: Series[]) {
 }
 
 export function allSeries(): Series[] {
-  if (dynamicSeries.length === 0) return SERIES
-  const genIds = new Set(dynamicSeries.map((s) => s.id))
-  return [...dynamicSeries, ...SERIES.filter((s) => !genIds.has(s.id))]
+  // Once real (AI-generated) series exist, show ONLY those — the hardcoded
+  // placeholder catalog is just a first-run stand-in.
+  return dynamicSeries.length > 0 ? dynamicSeries : SERIES
 }
 
 export const byId = (id: string) => allSeries().find((s) => s.id === id)

@@ -138,71 +138,48 @@ export interface FeedRow {
  */
 export function buildFeed(state: UserState): FeedRow[] {
   const aff = buildAffinity(state)
+  const pool = allSeries()
+  const inPool = new Set(pool.map((s) => s.id))
   const rows: FeedRow[] = []
-  const hasHistory = aff.seeds.length > 0
 
-  // 1. Continue Watching — in-progress titles, most recent first
+  // Continue Watching — in-progress titles that still exist, most recent first
   const continueIds = Object.entries(state.watched)
-    .filter(([, r]) => r.progress > 0.02 && r.progress < 0.98)
+    .filter(([id, r]) => inPool.has(id) && r.progress > 0.02 && r.progress < 0.98)
     .sort((a, b) => b[1].updatedAt - a[1].updatedAt)
     .map(([id]) => id)
   if (continueIds.length) {
     rows.push({ key: 'continue', title: 'Continue Watching', ids: continueIds, kind: 'continue' })
   }
 
-  // 2. Top Picks For You — personalized ranking
-  const ranked = [...allSeries()]
+  const ranked = [...pool]
     .filter((s) => !state.disliked[s.id])
-    .map((s) => ({ s, score: scoreForYou(s, aff) }))
-    .sort((a, b) => b.score - a.score)
-  rows.push({
-    key: 'toppicks',
-    title: hasHistory ? 'Top Picks For You' : 'Popular on NETFRUIT',
-    ids: ranked.slice(0, 12).map((x) => x.s.id),
-    kind: 'toppicks',
-  })
+    .sort((a, b) => scoreForYou(b, aff) - scoreForYou(a, aff))
+  const listIds = Object.keys(state.myList).filter((id) => inPool.has(id))
 
-  // 3. Trending
-  const trending = [...allSeries()].sort((a, b) => trendingScore(b) - trendingScore(a))
-  rows.push({ key: 'trending', title: 'Trending Fruits', ids: trending.slice(0, 10).map((s) => s.id) })
-
-  // 4. Because you liked <seed>
-  if (hasHistory) {
+  // Real (AI-generated) catalog present → focused, non-redundant feed over it.
+  if (pool.some((s) => s.generated)) {
+    rows.push({ key: 'originals', title: 'NETFRUIT Originals', ids: ranked.map((s) => s.id), kind: 'toppicks' })
+    const fresh = pool.filter((s) => s.newBadge)
+    if (fresh.length) rows.push({ key: 'fresh', title: 'New This Week', ids: fresh.map((s) => s.id) })
     const seed = byId(aff.seeds[0])
     if (seed) {
       const sims = similarTo(seed, 12).filter((s) => !state.disliked[s.id])
-      if (sims.length >= 4) {
-        rows.push({
-          key: 'because-' + seed.id,
-          title: `Because you liked ${seed.title}`,
-          ids: sims.map((s) => s.id),
-        })
-      }
+      if (sims.length >= 3) rows.push({ key: 'because-' + seed.id, title: `Because you liked ${seed.title}`, ids: sims.map((s) => s.id) })
     }
+    if (listIds.length) rows.push({ key: 'mylist', title: 'My Basket', ids: listIds })
+    return rows
   }
 
-  // 5. Fresh from the AI producer — generated titles float near the top
-  const generated = allSeries().filter((s) => s.generated)
-  if (generated.length) {
-    rows.splice(Math.min(2, rows.length), 0, {
-      key: 'generated',
-      title: 'Fresh from the NETFRUIT AI',
-      ids: generated.map((s) => s.id),
-    })
-  }
-
-  // 6. My List
-  const listIds = Object.keys(state.myList)
-  if (listIds.length) {
-    rows.push({ key: 'mylist', title: 'My Basket', ids: listIds })
-  }
-
-  // 6. Curated editorial rows (skip Trending — already covered dynamically)
+  // First-run placeholder feed (no generated content yet).
+  const hasHistory = aff.seeds.length > 0
+  rows.push({ key: 'toppicks', title: hasHistory ? 'Top Picks For You' : 'Popular on NETFRUIT', ids: ranked.slice(0, 12).map((s) => s.id), kind: 'toppicks' })
+  const trending = [...pool].sort((a, b) => trendingScore(b) - trendingScore(a))
+  rows.push({ key: 'trending', title: 'Trending Fruits', ids: trending.slice(0, 10).map((s) => s.id) })
+  if (listIds.length) rows.push({ key: 'mylist', title: 'My Basket', ids: listIds })
   for (const r of ROWS) {
     if (r.title.toLowerCase().includes('trending')) continue
     rows.push({ key: 'curated-' + r.title, title: r.title, ids: r.ids })
   }
-
   return rows
 }
 

@@ -160,16 +160,19 @@ export default function EpisodePlayer({
     const go = () => { if (advanced) return; advanced = true; next() }
 
     const vurl = voiceOf(shot, audioLang)
-    // Duck the background music while a line is spoken.
-    if (musicRef.current) musicRef.current.volume = vurl ? 0.1 : 0.22
+    // Duck the background music while a line is spoken, restore it after.
+    if (musicRef.current) musicRef.current.volume = vurl ? 0.12 : 0.24
     if (vurl) {
       const audio = new Audio(vurl)
       audio.playbackRate = speed
       audioRef.current = audio
-      audio.onended = go
+      audio.onended = () => { if (musicRef.current) musicRef.current.volume = 0.24 }
       audio.play().catch(() => {})
     }
-    timerRef.current = window.setTimeout(go, (Math.max(shot.durationSec, 3) / speed) * 1000 + 500)
+    // Hold each scene long enough to actually watch the motion and read the line
+    // (min ~8s), instead of jumping the instant the short spoken line ends.
+    const holdSec = Math.max(shot.durationSec || 0, 8)
+    timerRef.current = window.setTimeout(go, (holdSec / speed) * 1000)
     return clearTimer
   }, [manifest, i, done, paused, audioLang, speed, next])
 
