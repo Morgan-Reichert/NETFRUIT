@@ -90,8 +90,9 @@ export const config: AgentConfig = {
   falTalkModel: env.NETFRUIT_FAL_TALK || 'fal-ai/sadtalker',
   falKlingModel: env.NETFRUIT_FAL_KLING || 'fal-ai/kling-video/v1.6/standard/image-to-video',
   falLipsyncModel: env.NETFRUIT_FAL_LIPSYNC || 'fal-ai/sync-lipsync',
-  // Attempt real phoneme lip-sync on top of the Kling clip (graceful fallback).
-  falLipsync: env.NETFRUIT_LIPSYNC !== '0',
+  // Real phoneme lip-sync is opt-in now (Kling already animates the mouth) — it
+  // ~doubles video cost/time, so default OFF. Enable per-run with NETFRUIT_LIPSYNC=1.
+  falLipsync: env.NETFRUIT_LIPSYNC === '1',
   lipsyncLangs: (env.NETFRUIT_LIPSYNC_LANGS?.split(',') as Lang[]) || ['fr'],
 
   openaiKey: env.OPENAI_API_KEY,
