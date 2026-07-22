@@ -10,6 +10,7 @@ import Row from './components/Row'
 import DetailModal from './components/DetailModal'
 import EpisodePlayer from './components/EpisodePlayer'
 import AuthModal from './components/AuthModal'
+import SearchOverlay from './components/SearchOverlay'
 import Footer from './components/Footer'
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
   const [selected, setSelected] = useState<Series | null>(null)
   const [playing, setPlaying] = useState<Series | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const [category, setCategory] = useState('All')
 
   // Play marks the title watched; generated titles open the episode player.
@@ -59,13 +61,13 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-ink-950">
-      <Navbar onAuthClick={() => setAuthOpen(true)} />
+      <Navbar onAuthClick={() => setAuthOpen(true)} onSearchClick={() => setSearchOpen(true)} />
 
       <main>
         <Hero series={featured} onOpen={setSelected} onPlay={handlePlay} />
 
         {/* Category chips */}
-        <div className="sticky top-16 z-30 -mt-2 border-y border-white/5 bg-ink-950/80 backdrop-blur-md sm:top-20">
+        <div className="sticky top-[calc(4rem+env(safe-area-inset-top))] z-30 -mt-2 border-y border-white/5 bg-ink-950/80 backdrop-blur-md sm:top-[calc(5rem+env(safe-area-inset-top))]">
           <div className="no-scrollbar mx-auto flex max-w-[1600px] gap-2 overflow-x-auto px-4 py-3 sm:px-10">
             {CATEGORIES.map((c) => (
               <button
@@ -112,6 +114,7 @@ export default function App() {
       />
       <EpisodePlayer series={playing} onClose={() => setPlaying(null)} />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} onOpen={setSelected} />
     </div>
   )
 }

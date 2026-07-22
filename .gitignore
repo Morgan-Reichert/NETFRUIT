@@ -11,9 +11,8 @@ app/dist/
 app/.env
 *.local
 
-# Generated media artifacts (large; produced by the agent)
-app/public/generated/
-app/public/catalog.json
+# Generated episodes ARE committed so they deploy to Vercel (kept small: a few
+# short clips per series). If this grows large, move media to Supabase Storage.
 
 # OS / editor
 .DS_Store

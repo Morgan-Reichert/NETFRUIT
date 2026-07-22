@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, UserIcon } from './icons'
+import { ChevronDown } from './icons'
 import { useAuth } from '../lib/auth'
+import { avatarUrl, useProfiles } from '../lib/profiles'
 
 const LINKS = ['Home', 'Series', 'New & Ripe', 'My Basket', 'Categories']
 
-export default function Navbar({ onAuthClick }: { onAuthClick: () => void }) {
+export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: () => void; onSearchClick: () => void }) {
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('Home')
   const [menu, setMenu] = useState(false)
   const { user, signOut } = useAuth()
+  const { active: profile, switchProfile } = useProfiles()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -18,13 +20,13 @@ export default function Navbar({ onAuthClick }: { onAuthClick: () => void }) {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+      className={`safe-top fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
         scrolled
           ? 'bg-ink-950/85 backdrop-blur-xl border-b border-white/5'
           : 'bg-gradient-to-b from-black/80 via-black/30 to-transparent'
       }`}
     >
-      <nav className="mx-auto flex h-16 max-w-[1600px] items-center gap-6 px-4 sm:h-20 sm:px-10">
+      <nav className="safe-x mx-auto flex h-16 max-w-[1600px] items-center gap-6 px-4 sm:h-20 sm:px-10">
         {/* Logo */}
         <a href="#top" className="flex shrink-0 items-center gap-2">
           <img
@@ -64,6 +66,7 @@ export default function Navbar({ onAuthClick }: { onAuthClick: () => void }) {
           {/* Search */}
           <button
             aria-label="Search"
+            onClick={onSearchClick}
             className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-cream/70 transition hover:border-white/25 hover:text-cream"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -82,41 +85,52 @@ export default function Navbar({ onAuthClick }: { onAuthClick: () => void }) {
             <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-fruit-red-bright ring-2 ring-ink-950" />
           </button>
 
-          {/* Auth */}
-          {user ? (
-            <div className="relative">
-              <button onClick={() => setMenu((m) => !m)} className="flex items-center gap-1.5">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-strawberry to-orange text-sm font-bold uppercase text-white shadow-lg">
-                  {(user.email ?? '?')[0]}
-                </span>
-                <ChevronDown size={12} className="hidden text-cream/70 sm:block" />
-              </button>
-              {menu && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
-                  <div className="absolute right-0 top-11 z-20 w-56 overflow-hidden rounded-xl border border-white/10 bg-ink-900/95 shadow-2xl backdrop-blur-xl">
-                    <div className="border-b border-white/5 px-4 py-3">
-                      <p className="text-xs text-cream/50">Signed in as</p>
-                      <p className="truncate text-sm font-semibold text-cream">{user.email}</p>
+          {/* Profile + auth */}
+          <div className="relative">
+            <button onClick={() => setMenu((m) => !m)} className="flex items-center gap-1.5">
+              <img
+                src={avatarUrl(profile?.avatar ?? 'strawberry')}
+                alt={profile?.name ?? 'Profile'}
+                className="h-8 w-8 rounded-md object-cover shadow-lg ring-1 ring-white/15"
+              />
+              <ChevronDown size={12} className="hidden text-cream/70 sm:block" />
+            </button>
+            {menu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
+                <div className="absolute right-0 top-11 z-20 w-60 overflow-hidden rounded-xl border border-white/10 bg-ink-900/95 shadow-2xl backdrop-blur-xl">
+                  <div className="flex items-center gap-3 border-b border-white/5 px-4 py-3">
+                    <img src={avatarUrl(profile?.avatar ?? 'strawberry')} alt="" className="h-9 w-9 rounded-lg object-cover" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-cream">{profile?.name ?? 'Profile'}</p>
+                      <p className="truncate text-xs text-cream/50">{user ? user.email : 'Not synced'}</p>
                     </div>
+                  </div>
+                  <button
+                    onClick={() => { setMenu(false); switchProfile() }}
+                    className="w-full px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
+                  >
+                    Switch profile
+                  </button>
+                  {user ? (
                     <button
                       onClick={() => { setMenu(false); signOut() }}
                       className="w-full px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
                     >
-                      Sign out
+                      Sign out ({'cloud sync off'})
                     </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={onAuthClick}
-              className="flex items-center gap-1.5 rounded-full bg-fruit-red-bright px-4 py-1.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110"
-            >
-              <UserIcon size={16} /> Sign In
-            </button>
-          )}
+                  ) : (
+                    <button
+                      onClick={() => { setMenu(false); onAuthClick() }}
+                      className="w-full px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
+                    >
+                      Sign in to sync
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </nav>
     </header>

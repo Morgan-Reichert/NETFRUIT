@@ -180,7 +180,7 @@ export default function EpisodePlayer({
             )}
 
             {/* Segmented progress */}
-            <div className="absolute inset-x-0 top-0 flex gap-1 p-3">
+            <div className="safe-top absolute inset-x-0 top-0 flex gap-1 p-3">
               {Array.from({ length: total }).map((_, k) => (
                 <div key={k} className="h-1 flex-1 overflow-hidden rounded-full bg-white/25">
                   <div className="h-full bg-fruit-red-bright" style={{ width: k < i || done ? '100%' : k === i ? '100%' : '0%' }} />
@@ -216,7 +216,7 @@ export default function EpisodePlayer({
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-4 bg-black px-5 py-4">
+          <div className="safe-bottom safe-x flex items-center gap-4 bg-black px-5 py-4">
             <button onClick={onClose} className="text-cream/70 transition hover:text-cream" aria-label="Close">
               <CloseIcon />
             </button>

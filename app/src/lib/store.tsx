@@ -83,11 +83,11 @@ function reducer(state: UserState, action: Action): UserState {
   }
 }
 
-const KEY = 'netfruit.user.v1'
+const keyFor = (profileId: string) => `netfruit.user.v1.${profileId}`
 
-function load(): UserState {
+function load(profileId: string): UserState {
   try {
-    const raw = localStorage.getItem(KEY)
+    const raw = localStorage.getItem(keyFor(profileId))
     if (raw) return { ...EMPTY, ...JSON.parse(raw) }
   } catch {
     /* ignore */
@@ -107,16 +107,16 @@ interface Ctx {
 
 const UserCtx = createContext<Ctx | null>(null)
 
-export function UserProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, load)
+export function UserProvider({ children, profileId = 'default' }: { children: ReactNode; profileId?: string }) {
+  const [state, dispatch] = useReducer(reducer, profileId, load)
 
   useEffect(() => {
     try {
-      localStorage.setItem(KEY, JSON.stringify(state))
+      localStorage.setItem(keyFor(profileId), JSON.stringify(state))
     } catch {
       /* ignore */
     }
-  }, [state])
+  }, [state, profileId])
 
   const value = useMemo<Ctx>(
     () => ({

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "berry-betrayal",
+    "title": "Berry Betrayal",
+    "fruit": "strawberry",
+    "year": 2026,
+    "maturity": "16+",
+    "seasons": 3,
+    "match": 92,
+    "genres": [
+      "Drama",
+      "Comedy",
+      "AI Original"
+    ],
+    "tags": [
+      "Telenovela",
+      "Cartel"
+    ],
+    "synopsis": "In the juicy world of jam trade, ambitious strawberry, Rico, discovers a shocking betrayal that could ruin the cartel. Will his sweet revenge keep him fresh?",
+    "runtime": "15 min",
+    "generated": true,
+    "newBadge": true,
+    "posterUrl": "/generated/berry-betrayal/poster.png",
+    "episodeManifest": "/generated/berry-betrayal/episode.json",
+    "producedBy": "llm:fal|img:fal-flux|vid:fal-kling|voice:fal-elevenlabs"
+  }
+]

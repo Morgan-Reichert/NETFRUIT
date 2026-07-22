@@ -1,0 +1,46 @@
+{
+  "seriesId": "berry-betrayal",
+  "title": "Berry Betrayal — Episode 1",
+  "logline": "In the juicy world of jam trade, ambitious strawberry, Rico, discovers a shocking betrayal that could ruin the cartel. Will his sweet revenge keep him fresh?",
+  "durationSec": 13,
+  "langs": [
+    "en",
+    "fr",
+    "es"
+  ],
+  "shots": [
+    {
+      "speaker": "Rico",
+      "imageUrl": "/generated/berry-betrayal/shot-0.png",
+      "clipUrl": "/generated/berry-betrayal/clip-0.mp4",
+      "voiceUrls": {
+        "en": "/generated/berry-betrayal/voice-0-en.mp3",
+        "fr": "/generated/berry-betrayal/voice-0-fr.mp3",
+        "es": "/generated/berry-betrayal/voice-0-es.mp3"
+      },
+      "captions": {
+        "en": "I've just discovered that the seeds of betrayal lie within our own berries!",
+        "fr": "Je viens de découvrir que les graines de trahison sont parmi nos propres baies!",
+        "es": "¡Acabo de descubrir que las semillas de traición están entre nuestras propias bayas!"
+      },
+      "durationSec": 7
+    },
+    {
+      "speaker": "Bella",
+      "imageUrl": "/generated/berry-betrayal/shot-1.png",
+      "clipUrl": "/generated/berry-betrayal/clip-1.mp4",
+      "voiceUrls": {
+        "en": "/generated/berry-betrayal/voice-1-en.mp3",
+        "fr": "/generated/berry-betrayal/voice-1-fr.mp3",
+        "es": "/generated/berry-betrayal/voice-1-es.mp3"
+      },
+      "captions": {
+        "en": "Rico, sweetie, you were never supposed to find out!",
+        "fr": "Rico, chéri, tu n'étais jamais censé le découvrir!",
+        "es": "Rico, cariño, ¡nunca debiste enterarte!"
+      },
+      "durationSec": 6
+    }
+  ],
+  "videoUrl": "/generated/berry-betrayal/episode.mp4"
+}
