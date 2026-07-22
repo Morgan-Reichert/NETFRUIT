@@ -102,6 +102,17 @@
   animation: ticker 40s linear infinite;
 }
 
+/* Word-by-word karaoke caption reveal */
+@keyframes wordin {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.kw {
+  display: inline-block;
+  opacity: 0;
+  animation: wordin 0.28s ease-out forwards;
+}
+
 /* Ken-Burns slow pan/zoom for still-image episode shots */
 @keyframes kenburns {
   0% { transform: scale(1.05) translate(0, 0); }

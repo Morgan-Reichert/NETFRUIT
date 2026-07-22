@@ -10,7 +10,7 @@ export interface ImageRequest {
   prompt: string
   /** file stem, e.g. "poster" or "shot-0" */
   name: string
-  ratio: 'portrait' | 'landscape'
+  ratio: 'portrait' | 'landscape' | 'vertical'
 }
 
 /** A rendered image: local URL for the app + optional remote (fal) URL for chaining. */
@@ -22,8 +22,13 @@ export interface ImageResult {
 const DIMS = {
   portrait: { w: 720, h: 1080 },
   landscape: { w: 1280, h: 720 },
+  vertical: { w: 720, h: 1280 },
 }
-const FLUX_SIZE = { portrait: 'portrait_4_3', landscape: 'landscape_16_9' } as const
+const FLUX_SIZE = {
+  portrait: 'portrait_4_3',
+  landscape: 'landscape_16_9',
+  vertical: 'portrait_16_9', // 9:16 TikTok vertical
+} as const
 
 /* ------------------------- mock: local SVG key art ------------------------- */
 

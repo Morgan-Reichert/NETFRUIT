@@ -124,6 +124,9 @@ export const CaptionsIcon = (p: P) => (
     <path d="M8 11a2 2 0 1 0 0 2M15 11a2 2 0 1 0 0 2" />
   </svg>
 )
+export const MusicIcon = (p: P) => (
+  <svg {...base(p)}><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+)
 export const GaugeIcon = (p: P) => (
   <svg {...base(p)}><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /><path d="m14 11 4-3" /><path d="M4 18a9 9 0 1 1 16 0" /></svg>
 )

@@ -48,7 +48,7 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
       fruit,
       prompt: mascot(shot.visualPrompt),
       name: `shot-${shot.index}`,
-      ratio: 'portrait',
+      ratio: 'vertical', // 9:16 TikTok-style
     })
 
     // Voice-over in every language, in this character's distinct voice

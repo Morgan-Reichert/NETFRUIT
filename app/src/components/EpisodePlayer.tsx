@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Series } from '../data/series'
 import {
-  CaptionsIcon, ChevronDown, CloseIcon, GaugeIcon, PauseIcon,
+  CaptionsIcon, ChevronDown, CloseIcon, GaugeIcon, MusicIcon, PauseIcon,
   PlayIcon, ReplayIcon, SettingsIcon, VolumeIcon,
 } from './icons'
 
@@ -14,6 +14,16 @@ const QUALITY_FILTER: Record<Quality, string> = {
   auto: '', high: '', medium: 'saturate(.92) brightness(.98)', low: 'blur(1.4px) saturate(.85)',
 }
 const QUALITY_LABEL: Record<Quality, string> = { auto: 'Auto', high: '1080p', medium: '720p', low: '360p' }
+
+/** Picks an addictive background-music mood from the series' genres/tags. */
+function moodFor(s: Series | null): string {
+  const g = ((s?.genres ?? []).join(' ') + ' ' + (s?.tags ?? []).join(' ')).toLowerCase()
+  if (/comedy|sitcom|rom|feel-good|wacky|punny|musical/.test(g)) return 'comedic'
+  if (/thriller|crime|noir|heist|legal/.test(g)) return 'tense'
+  if (/mystery|myster|survival|dark/.test(g)) return 'mysterious'
+  if (/fantasy|epic|action|sci-fi|adventure|telenovela|drama/.test(g)) return 'epic'
+  return 'hype'
+}
 
 interface Shot {
   speaker?: string
@@ -47,16 +57,38 @@ export default function EpisodePlayer({
   const [paused, setPaused] = useState(false)
   const [done, setDone] = useState(false)
   const [audioLang, setAudioLang] = useState<Lang>('fr')
-  const [subLang, setSubLang] = useState<Lang | 'off'>('off')
+  const [subLang, setSubLang] = useState<Lang | 'off'>('fr')
   const [speed, setSpeed] = useState(1)
   const [quality, setQuality] = useState<Quality>('auto')
   const [settings, setSettings] = useState(false)
   // `shown` is the scene actually on screen. It only advances to `i` once the
   // next clip is buffered, so scenes crossfade with no black flash.
   const [shown, setShown] = useState(0)
+  const [music, setMusic] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const musicRef = useRef<HTMLAudioElement | null>(null)
   const timerRef = useRef<number | null>(null)
+
+  // Background music (mood-matched, looping) set up per opened series.
+  useEffect(() => {
+    musicRef.current?.pause()
+    musicRef.current = null
+    if (!series) return
+    const a = new Audio(`/music/${moodFor(series)}.mp3`)
+    a.loop = true
+    a.volume = 0.2
+    musicRef.current = a
+    return () => { a.pause() }
+  }, [series])
+
+  // Play/pause the music with the episode + music toggle.
+  useEffect(() => {
+    const a = musicRef.current
+    if (!a) return
+    if (music && !paused && !done && manifest) a.play().catch(() => {})
+    else a.pause()
+  }, [music, paused, done, manifest])
 
   // Preload the target scene, then promote it (crossfade in).
   useEffect(() => {
@@ -116,6 +148,8 @@ export default function EpisodePlayer({
     const go = () => { if (advanced) return; advanced = true; next() }
 
     const vurl = voiceOf(shot, audioLang)
+    // Duck the background music while a line is spoken.
+    if (musicRef.current) musicRef.current.volume = vurl ? 0.1 : 0.22
     if (vurl) {
       const audio = new Audio(vurl)
       audio.playbackRate = speed
@@ -196,8 +230,16 @@ export default function EpisodePlayer({
                       {shot.speaker}
                     </span>
                   )}
-                  <p className="font-display text-xl font-semibold text-cream text-shadow-cinema sm:text-2xl">
-                    {subtitle}
+                  <p className="font-display text-2xl font-extrabold uppercase leading-tight tracking-wide text-cream text-shadow-cinema sm:text-3xl">
+                    {subtitle.split(/\s+/).map((w, wi, arr) => (
+                      <span
+                        key={wi}
+                        className="kw mr-[0.3em]"
+                        style={{ animationDelay: `${wi * Math.min(0.32, ((shot?.durationSec ?? 8) * 0.7) / arr.length)}s` }}
+                      >
+                        {w}
+                      </span>
+                    ))}
                   </p>
                 </motion.div>
               )}
@@ -247,6 +289,9 @@ export default function EpisodePlayer({
                   </Section>
                   <Section icon={<SettingsIcon size={15} />} label="Quality">
                     <Segmented options={(['auto', 'high', 'medium', 'low'] as Quality[]).map((q) => ({ v: q, label: QUALITY_LABEL[q] }))} value={quality} onChange={(v) => setQuality(v as Quality)} />
+                  </Section>
+                  <Section icon={<MusicIcon size={15} />} label="Music">
+                    <Segmented options={[{ v: 'on', label: 'On' }, { v: 'off', label: 'Off' }]} value={music ? 'on' : 'off'} onChange={(v) => setMusic(v === 'on')} />
                   </Section>
                 </motion.div>
               )}
