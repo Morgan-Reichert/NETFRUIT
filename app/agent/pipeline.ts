@@ -90,13 +90,13 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
   return entry
 }
 
-/** Commit + push the current generated media so it deploys (per episode). */
-function commitAndPush(message: string) {
+/** Commit + push ONLY this series' media + catalog so it deploys (per episode). */
+function commitAndPush(message: string, seriesId: string) {
   const token = process.env.GH_TOKEN
   const repo = process.env.GH_REPO || 'Morgan-Reichert/NETFRUIT'
   const root = new URL('../..', import.meta.url).pathname
   try {
-    execSync('git add -A', { cwd: root, stdio: 'ignore' })
+    execSync(`git add app/public/generated/${seriesId} app/public/catalog.json`, { cwd: root, stdio: 'ignore' })
     execSync(`git commit -q -m ${JSON.stringify(message)}`, { cwd: root, stdio: 'ignore' })
     if (token) execSync(`git push -q "https://${token}@github.com/${repo}.git" main`, { cwd: root, stdio: 'ignore' })
     log('deploy', `✔ pushed: ${message}`)
@@ -158,7 +158,7 @@ export async function produceSeason(brief: Brief, episodeCount: number): Promise
     log('publish', `✔ episode ${n}/${episodeCount} published`)
 
     // Ship it online + notify subscribers.
-    commitAndPush(`Season "${concept.meta.title}" — episode ${n}/${episodeCount}: ${epTitle}`)
+    commitAndPush(`Season "${concept.meta.title}" — episode ${n}/${episodeCount}: ${epTitle}`, id)
     await notifyDrop({
       title: n === 1 ? `New series: ${concept.meta.title} 🍓` : `${concept.meta.title} — Ep. ${n} is live 🍿`,
       body: epLogline || concept.meta.synopsis,
