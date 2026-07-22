@@ -21,7 +21,7 @@ import type { Lang } from './types'
 const env = process.env
 
 export type ImageProvider = 'mock' | 'pollinations' | 'gemini' | 'fal-flux'
-export type VideoProvider = 'mock' | 'fal-ltx' | 'fal-kling' | 'fal-talk'
+export type VideoProvider = 'mock' | 'fal-ltx' | 'fal-kling' | 'fal-wan' | 'fal-talk'
 export type VoiceProvider = 'mock' | 'gemini' | 'openai' | 'elevenlabs' | 'fal-elevenlabs'
 export type LLMProvider = 'mock' | 'gemini' | 'anthropic' | 'fal'
 
@@ -44,6 +44,7 @@ export interface AgentConfig {
   falTTSModel: string
   falTalkModel: string
   falKlingModel: string
+  falWanModel: string
   falLipsyncModel: string
   falLipsync: boolean
   /** Languages to render lip-synced talking video for (others get audio+subs). */
@@ -69,7 +70,8 @@ export const config: AgentConfig = {
     (env.NETFRUIT_LLM as LLMProvider) ||
     (fal ? 'fal' : env.ANTHROPIC_API_KEY ? 'anthropic' : gem ? 'gemini' : 'mock'),
   image: (env.NETFRUIT_IMAGE as ImageProvider) || (fal ? 'fal-flux' : 'pollinations'),
-  video: (env.NETFRUIT_VIDEO as VideoProvider) || (fal ? 'fal-kling' : 'mock'),
+  // Wan 2.2 = reference-quality controlled motion at a fraction of Kling's cost.
+  video: (env.NETFRUIT_VIDEO as VideoProvider) || (fal ? 'fal-wan' : 'mock'),
   voice: (env.NETFRUIT_VOICE as VoiceProvider) || (fal ? 'fal-elevenlabs' : gem ? 'gemini' : 'mock'),
 
   geminiKey: gem,
@@ -89,6 +91,7 @@ export const config: AgentConfig = {
   falTTSModel: env.NETFRUIT_FAL_TTS || 'fal-ai/elevenlabs/tts/multilingual-v2',
   falTalkModel: env.NETFRUIT_FAL_TALK || 'fal-ai/sadtalker',
   falKlingModel: env.NETFRUIT_FAL_KLING || 'fal-ai/kling-video/v1.6/standard/image-to-video',
+  falWanModel: env.NETFRUIT_FAL_WAN || 'fal-ai/wan/v2.2-a14b/image-to-video',
   falLipsyncModel: env.NETFRUIT_FAL_LIPSYNC || 'fal-ai/sync-lipsync',
   // Real phoneme lip-sync is opt-in now (Kling already animates the mouth) — it
   // ~doubles video cost/time, so default OFF. Enable per-run with NETFRUIT_LIPSYNC=1.

@@ -58,6 +58,22 @@ async function falKling(req: VideoRequest, absMp4: string, urlMp4: string) {
   return urlMp4
 }
 
+/* ------------------------------- fal: Wan 2.2 ------------------------------ *
+ * Reference-quality controlled cinematic motion at a fraction of Kling's cost.
+ * -------------------------------------------------------------------------- */
+
+async function falWan(req: VideoRequest, absMp4: string, urlMp4: string) {
+  const image_url = req.imageRemote ?? (await toDataUri(req.imageUrl))
+  const out = await falQueue<{ video?: { url: string }; videos?: { url: string }[] }>(config.falWanModel, {
+    prompt: `${req.prompt}. Characters talk and gesture with natural expressive motion, subtle cinematic camera.`,
+    image_url,
+  })
+  const v = out.video?.url ?? out.videos?.[0]?.url
+  if (!v) throw new Error('wan: no video url')
+  await writeBinary(absMp4, await fetchBytes(v))
+  return urlMp4
+}
+
 /* ---------------------------- fal: SadTalker ------------------------------- */
 
 async function falTalk(req: VideoRequest, absMp4: string, urlMp4: string) {
@@ -96,6 +112,7 @@ export async function generateClip(req: VideoRequest): Promise<string | null> {
   const urlMp4 = publicUrl(...dir, `${req.name}.mp4`)
 
   const providers: Record<string, () => Promise<string>> = {
+    'fal-wan': () => falWan(req, absMp4, urlMp4),
     'fal-kling': () => falKling(req, absMp4, urlMp4),
     'fal-talk': () => falTalk(req, absMp4, urlMp4),
     'fal-ltx': () => falLtx(req, absMp4, urlMp4),
