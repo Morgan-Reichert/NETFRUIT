@@ -15,13 +15,21 @@ import { LANGS, type Brief, type GeneratedSeries, type Lang, type ShotAssets } f
 export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
   const concept = await generateConcept(brief)
   const id = concept.meta.id
-  console.log(`\n🍓 Producing "${concept.meta.title}" (${concept.meta.fruit}) — ${id}`)
+  const fruit = concept.meta.fruit
+  console.log(`\n🍓 Producing "${concept.meta.title}" (${fruit}) — ${id}`)
+
+  // Force the fruit-mascot look on EVERY image — the LLM's story prompts can
+  // drift toward humans (esp. "telenovela"), so we hard-prepend the style.
+  const mascot = (p: string) =>
+    `3D Pixar-style animated movie still of an anthropomorphic ${fruit} character — ` +
+    `a giant cute ${fruit} with a clear cartoon face (big expressive eyes, eyebrows, mouth) ` +
+    `and little arms and legs, absolutely NOT a human person. Scene: ${p}`
 
   // 1. Poster / key art
   const poster = await generateImage({
     seriesId: id,
-    fruit: concept.meta.fruit,
-    prompt: concept.posterPrompt,
+    fruit,
+    prompt: mascot(concept.posterPrompt),
     name: 'poster',
     ratio: 'portrait',
   })
@@ -37,8 +45,8 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
   for (const shot of concept.episode.shots) {
     const image = await generateImage({
       seriesId: id,
-      fruit: concept.meta.fruit,
-      prompt: shot.visualPrompt,
+      fruit,
+      prompt: mascot(shot.visualPrompt),
       name: `shot-${shot.index}`,
       ratio: 'portrait',
     })

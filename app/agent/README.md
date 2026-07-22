@@ -6,13 +6,24 @@ the app catalog.
 ```
 Agent (fills the least-covered fruits, QA-gates each)
   └─ Pipeline per episode:
-     1. concept + script + shot-list   → Claude          (providers/llm.ts)
-     2. poster + keyframes             → image model     (providers/image.ts)
-     3. animated clips                 → video model     (providers/video.ts)
-     4. narration / voice              → TTS             (providers/voice.ts)
-     5. assemble timeline / mp4        → ffmpeg          (providers/assemble.ts)
+     1. screenplay: characters + dialogue (FR/EN/ES)  → LLM        (providers/llm.ts)
+     2. fruit-mascot key art + keyframes              → image      (providers/image.ts)
+     3. voice per character, per language             → TTS        (providers/voice.ts)
+     4. talking + moving clip + phoneme lip-sync      → video      (providers/video.ts)
+     5. assemble timeline / stitched mp4              → ffmpeg     (providers/assemble.ts)
      6. publish → public/catalog.json  +  public/generated/<id>/*
 ```
+
+## Premium stack — fal.ai (one key, everything)
+
+With `FAL_KEY` set (see `.env.example`) the whole pipeline runs on fal.ai:
+gpt-4o screenplay, Flux fruit-mascot art, ElevenLabs distinct per-character
+voices in FR/EN/ES, Kling talking video, and `sync-lipsync` phoneme lip-sync on
+top. Each shot = one fal video clip, so cost scales with `NETFRUIT_SHOTS`.
+
+> Note: photoreal lip-sync models (SadTalker) reject stylized fruit faces, so
+> we hard-prompt Pixar-style fruit mascots (which read as a face) and use
+> Kling + `sync-lipsync`, which handle them.
 
 The app reads `public/catalog.json` at runtime (`src/lib/catalog.ts`) and merges
 generated titles into the recommendation feed — they show up under

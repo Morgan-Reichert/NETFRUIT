@@ -113,9 +113,10 @@ Rules:
   Put that in "look". "voice" = one of: Roger, Sarah, George, Charlotte, Callum, Alice, Brian, Jessica (distinct per character).
 - Exactly {{N}} shots forming a real story arc: hook → rising tension → twist → CLIFFHANGER. Make it loufoque (zany), dramatic and suspenseful.
 - Each shot = ONE punchy spoken line by a character (use their name in "speaker"; use "Narrator" for narration). "captions" gives that line in EN, FR, ES — natural, idiomatic, funny (not literal).
-- "visualPrompt" renders the SPEAKING character front-facing, face clearly visible and close enough
-  to read the mouth, Pixar 3D style, plus camera MOTION and ACTION (push-in, gesturing, slam, dramatic lighting).
-  Keep each character's look consistent across shots. English only for title/synopsis/visualPrompt.
+- CHARACTERS ARE ANTHROPOMORPHIC FRUITS, NEVER HUMANS. "visualPrompt" describes the SPEAKING
+  fruit character front-facing (a cartoon fruit with a face — never a human person), face clearly
+  visible, plus camera MOTION and ACTION (push-in, gesturing, slam, dramatic lighting). Keep each
+  character's look consistent across shots. English only for title/synopsis/visualPrompt.
 - durationSec 5–8 per shot.`
 
 function userPrompt(brief: Brief): string {
