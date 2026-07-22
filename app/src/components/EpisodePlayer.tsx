@@ -162,12 +162,10 @@ export default function EpisodePlayer({
     let advanced = false
     const go = () => { if (advanced) return; advanced = true; next() }
 
-    // Full-episode baked-audio videos advance on their own 'ended' event; we only
-    // keep a generous fallback timer here in case 'ended' never fires.
-    if (manifest.bakedAudio) {
-      timerRef.current = window.setTimeout(go, ((shot.durationSec || 8) + 3) / speed * 1000)
-      return clearTimer
-    }
+    // Full-episode baked-audio videos advance ONLY on their real 'ended' event
+    // (see the <video> onEnded/onLoadedMetadata below). No manifest-duration timer
+    // here — a stale duration must never cut the episode short.
+    if (manifest.bakedAudio) return clearTimer
 
     const vurl = voiceOf(shot, audioLang)
     // Duck the background music while a line is spoken, restore it after.
@@ -234,7 +232,18 @@ export default function EpisodePlayer({
                       muted={!baked}
                       loop={!baked}
                       playsInline
-                      onEnded={baked ? () => next() : undefined}
+                      onEnded={baked ? () => { clearTimer(); next() } : undefined}
+                      onLoadedMetadata={
+                        baked
+                          ? (e) => {
+                              // Safety net keyed to the REAL file duration (never the manifest),
+                              // in case 'ended' doesn't fire. Generous so it never pre-empts.
+                              clearTimer()
+                              const d = e.currentTarget.duration || 12
+                              timerRef.current = window.setTimeout(() => next(), ((d + 4) / speed) * 1000)
+                            }
+                          : undefined
+                      }
                     />
                   ) : (
                     <img

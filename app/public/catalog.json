@@ -34,7 +34,13 @@
         "number": 2,
         "title": "Filtered",
         "manifest": "/generated/overripe/e2/episode.json",
-        "durationSec": 6
+        "durationSec": 25
+      },
+      {
+        "number": 3,
+        "title": "Trending",
+        "manifest": "/generated/overripe/e3/episode.json",
+        "durationSec": 59
       }
     ],
     "producedBy": "grok (manual)"
