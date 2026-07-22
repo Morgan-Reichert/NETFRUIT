@@ -3,18 +3,22 @@ import { CATEGORIES, allSeries, byId, type Series } from './data/series'
 import { buildFeed, matchesCategory, scoreForYou, buildAffinity } from './lib/recommend'
 import { useCatalog } from './lib/catalog'
 import { useUser } from './lib/store'
+import { useCloudSync } from './lib/sync'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Row from './components/Row'
 import DetailModal from './components/DetailModal'
 import EpisodePlayer from './components/EpisodePlayer'
+import AuthModal from './components/AuthModal'
 import Footer from './components/Footer'
 
 export default function App() {
   const { state, watch } = useUser()
   const catalogVersion = useCatalog()
+  useCloudSync()
   const [selected, setSelected] = useState<Series | null>(null)
   const [playing, setPlaying] = useState<Series | null>(null)
+  const [authOpen, setAuthOpen] = useState(false)
   const [category, setCategory] = useState('All')
 
   // Play marks the title watched; generated titles open the episode player.
@@ -55,7 +59,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-ink-950">
-      <Navbar />
+      <Navbar onAuthClick={() => setAuthOpen(true)} />
 
       <main>
         <Hero series={featured} onOpen={setSelected} onPlay={handlePlay} />
@@ -107,6 +111,7 @@ export default function App() {
         onPlay={handlePlay}
       />
       <EpisodePlayer series={playing} onClose={() => setPlaying(null)} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
   )
 }

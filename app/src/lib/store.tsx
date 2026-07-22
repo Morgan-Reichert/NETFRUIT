@@ -33,6 +33,7 @@ type Action =
   | { type: 'like'; id: string }
   | { type: 'dislike'; id: string }
   | { type: 'toggleList'; id: string }
+  | { type: 'hydrate'; state: UserState }
   | { type: 'reset' }
 
 function reducer(state: UserState, action: Action): UserState {
@@ -73,6 +74,8 @@ function reducer(state: UserState, action: Action): UserState {
       else myList[action.id] = true
       return { ...state, clock, myList }
     }
+    case 'hydrate':
+      return { ...EMPTY, ...action.state, clock }
     case 'reset':
       return { ...EMPTY }
     default:
@@ -98,6 +101,7 @@ interface Ctx {
   like: (id: string) => void
   dislike: (id: string) => void
   toggleList: (id: string) => void
+  hydrate: (state: UserState) => void
   reset: () => void
 }
 
@@ -121,6 +125,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       like: (id) => dispatch({ type: 'like', id }),
       dislike: (id) => dispatch({ type: 'dislike', id }),
       toggleList: (id) => dispatch({ type: 'toggleList', id }),
+      hydrate: (s) => dispatch({ type: 'hydrate', state: s }),
       reset: () => dispatch({ type: 'reset' }),
     }),
     [state],

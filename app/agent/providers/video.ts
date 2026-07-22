@@ -1,16 +1,19 @@
 import { readFile } from 'node:fs/promises'
 import { config, log } from '../config'
 import { publicPath, publicUrl, writeText, writeBinary } from '../util'
+import { falQueue, fetchBytes } from './fal'
 
 export interface VideoRequest {
   seriesId: string
   name: string // e.g. "clip-0"
-  imageUrl: string // keyframe to animate (image-to-video)
+  imageUrl: string // local keyframe (fallback)
+  imageRemote?: string // fal-hosted keyframe URL (preferred for chaining)
+  audioRemote?: string // fal-hosted voice URL (for lip-sync)
   prompt: string
   durationSec: number
 }
 
-/** Turns a public-relative keyframe path into a data URI fal can read directly. */
+/** Local public-relative path → data URI (fallback when no remote URL exists). */
 async function toDataUri(imageUrl: string): Promise<string> {
   if (/^https?:/.test(imageUrl)) return imageUrl
   const rel = imageUrl.replace(/^\//, '').split('/')
@@ -20,75 +23,97 @@ async function toDataUri(imageUrl: string): Promise<string> {
   return `data:${mime};base64,${Buffer.from(bytes).toString('base64')}`
 }
 
-/* ----------------------------- fal: LTX-Video ------------------------------ *
- * Video generation runs for minutes, so we use fal's async QUEUE API
- * (submit → poll status → fetch result) rather than the sync endpoint, which
- * drops long connections ("fetch failed").
+/* ----------------------------- fal: Kling i2v ------------------------------ *
+ * Flux keyframe → Kling image-to-video (character talks, gestures, mouth moves,
+ * camera moves). Optionally refined with sync-lipsync against the voice track.
  * -------------------------------------------------------------------------- */
 
-const sleepMs = (ms: number) => new Promise((r) => setTimeout(r, ms))
-const auth = () => ({ Authorization: `Key ${config.falKey}` })
-
-async function falLtx(req: VideoRequest, absMp4: string, urlMp4: string) {
-  const image_url = await toDataUri(req.imageUrl)
-
-  // 1. Submit to the queue — bias LTX toward real motion, not a static hold.
-  const motionPrompt = `${req.prompt}. Dynamic camera movement, characters and elements in motion, cinematic action, no static frames.`
-  const submit = await fetch(`https://queue.fal.run/${config.falVideoModel}`, {
-    method: 'POST',
-    headers: { ...auth(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      prompt: motionPrompt,
-      negative_prompt: 'static, still image, frozen, motionless, low quality, worst quality',
-      image_url,
-      num_frames: 121,
-      frame_rate: 24,
-    }),
+async function falKling(req: VideoRequest, absMp4: string, urlMp4: string) {
+  const image_url = req.imageRemote ?? (await toDataUri(req.imageUrl))
+  const kling = await falQueue<{ video?: { url: string } }>(config.falKlingModel, {
+    prompt:
+      `${req.prompt}. The character is talking animatedly, mouth moving, expressive gestures, ` +
+      `lively camera. Smooth cinematic motion.`,
+    image_url,
+    duration: '5',
   })
-  if (!submit.ok) throw new Error(`fal submit ${submit.status}: ${(await submit.text()).slice(0, 120)}`)
-  const { status_url, response_url } = await submit.json()
-  if (!status_url || !response_url) throw new Error('fal: no queue urls')
+  let videoUrl = kling.video?.url
+  if (!videoUrl) throw new Error('kling: no video url')
 
-  // 2. Poll until completed (up to ~5 min)
-  for (let i = 0; i < 100; i++) {
-    await sleepMs(3000)
-    const st = await fetch(status_url, { headers: auth() })
-    const sj = await st.json()
-    if (sj.status === 'COMPLETED') break
-    if (sj.status === 'FAILED' || sj.status === 'ERROR') throw new Error('fal job failed')
-    if (i === 99) throw new Error('fal poll timeout')
+  // Optional real phoneme lip-sync on top of the Kling clip
+  if (config.falLipsync && req.audioRemote) {
+    try {
+      log('video', `lipsync ← ${req.name}`)
+      const ls = await falQueue<{ video?: { url: string } }>(config.falLipsyncModel, {
+        video_url: videoUrl,
+        audio_url: req.audioRemote,
+      })
+      if (ls.video?.url) videoUrl = ls.video.url
+    } catch (e) {
+      log('video', `lipsync failed (${(e as Error).message}); using Kling clip`)
+    }
   }
 
-  // 3. Fetch the result payload → video url → download
-  const out = await fetch(response_url, { headers: auth() })
-  if (!out.ok) throw new Error(`fal result ${out.status}`)
-  const json = await out.json()
-  const vUrl = json.video?.url ?? json.videos?.[0]?.url
-  if (!vUrl) throw new Error('fal-ltx: no video url')
-  const bin = await fetch(vUrl)
-  await writeBinary(absMp4, Buffer.from(await bin.arrayBuffer()))
+  await writeBinary(absMp4, await fetchBytes(videoUrl))
   return urlMp4
 }
 
-/**
- * Produces one animated clip. In mock mode we don't synthesize real video —
- * we emit a small clip manifest so the pipeline stays fully offline/free, and
- * the app treats the still keyframe as the "clip" (Ken-Burns slideshow).
- */
+/* ---------------------------- fal: SadTalker ------------------------------- */
+
+async function falTalk(req: VideoRequest, absMp4: string, urlMp4: string) {
+  if (!req.imageRemote || !req.audioRemote) throw new Error('sadtalker: needs remote image+audio')
+  const out = await falQueue<{ video?: { url: string } }>(config.falTalkModel, {
+    source_image_url: req.imageRemote,
+    driven_audio_url: req.audioRemote,
+  })
+  const v = out.video?.url
+  if (!v) throw new Error('sadtalker: no video url')
+  await writeBinary(absMp4, await fetchBytes(v))
+  return urlMp4
+}
+
+/* ------------------------------ fal: LTX ----------------------------------- */
+
+async function falLtx(req: VideoRequest, absMp4: string, urlMp4: string) {
+  const image_url = req.imageRemote ?? (await toDataUri(req.imageUrl))
+  const out = await falQueue<{ video?: { url: string } }>(config.falVideoModel, {
+    prompt: `${req.prompt}. Dynamic motion, moving camera, cinematic.`,
+    negative_prompt: 'static, still image, frozen, low quality',
+    image_url,
+    num_frames: 121,
+    frame_rate: 24,
+  })
+  const v = out.video?.url
+  if (!v) throw new Error('ltx: no video url')
+  await writeBinary(absMp4, await fetchBytes(v))
+  return urlMp4
+}
+
+/** Produces one animated clip. Falls back to a still-clip manifest on failure. */
 export async function generateClip(req: VideoRequest): Promise<string | null> {
   const dir = ['generated', req.seriesId]
-  if (config.video === 'fal-ltx' && config.falKey) {
+  const absMp4 = publicPath(...dir, `${req.name}.mp4`)
+  const urlMp4 = publicUrl(...dir, `${req.name}.mp4`)
+
+  const providers: Record<string, () => Promise<string>> = {
+    'fal-kling': () => falKling(req, absMp4, urlMp4),
+    'fal-talk': () => falTalk(req, absMp4, urlMp4),
+    'fal-ltx': () => falLtx(req, absMp4, urlMp4),
+  }
+  const run = providers[config.video]
+  if (run && config.falKey) {
     try {
-      log('video', `LTX ← ${req.name}`)
-      return await falLtx(req, publicPath(...dir, `${req.name}.mp4`), publicUrl(...dir, `${req.name}.mp4`))
+      log('video', `${config.video} ← ${req.name}`)
+      return await run()
     } catch (e) {
-      log('video', `LTX failed (${(e as Error).message}); manifest fallback`)
+      log('video', `${config.video} failed (${(e as Error).message}); manifest fallback`)
     }
   }
+
   log('video', `mock clip ← ${req.name}`)
   await writeText(
     publicPath(...dir, `${req.name}.json`),
     JSON.stringify({ type: 'still-clip', imageUrl: req.imageUrl, durationSec: req.durationSec, prompt: req.prompt }, null, 2),
   )
-  return null // null clip → app falls back to the keyframe image
+  return null
 }

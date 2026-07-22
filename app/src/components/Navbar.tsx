@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, UserIcon } from './icons'
+import { useAuth } from '../lib/auth'
 
 const LINKS = ['Home', 'Series', 'New & Ripe', 'My Basket', 'Categories']
 
-export default function Navbar() {
+export default function Navbar({ onAuthClick }: { onAuthClick: () => void }) {
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('Home')
+  const [menu, setMenu] = useState(false)
+  const { user, signOut } = useAuth()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -79,13 +82,41 @@ export default function Navbar() {
             <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-fruit-red-bright ring-2 ring-ink-950" />
           </button>
 
-          {/* Avatar */}
-          <button className="flex items-center gap-1.5">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-strawberry to-orange text-white shadow-lg">
-              <UserIcon size={18} />
-            </span>
-            <ChevronDown size={12} className="hidden text-cream/70 sm:block" />
-          </button>
+          {/* Auth */}
+          {user ? (
+            <div className="relative">
+              <button onClick={() => setMenu((m) => !m)} className="flex items-center gap-1.5">
+                <span className="grid h-8 w-8 place-items-center rounded-md bg-gradient-to-br from-strawberry to-orange text-sm font-bold uppercase text-white shadow-lg">
+                  {(user.email ?? '?')[0]}
+                </span>
+                <ChevronDown size={12} className="hidden text-cream/70 sm:block" />
+              </button>
+              {menu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
+                  <div className="absolute right-0 top-11 z-20 w-56 overflow-hidden rounded-xl border border-white/10 bg-ink-900/95 shadow-2xl backdrop-blur-xl">
+                    <div className="border-b border-white/5 px-4 py-3">
+                      <p className="text-xs text-cream/50">Signed in as</p>
+                      <p className="truncate text-sm font-semibold text-cream">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={() => { setMenu(false); signOut() }}
+                      className="w-full px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={onAuthClick}
+              className="flex items-center gap-1.5 rounded-full bg-fruit-red-bright px-4 py-1.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110"
+            >
+              <UserIcon size={16} /> Sign In
+            </button>
+          )}
         </div>
       </nav>
     </header>

@@ -16,12 +16,14 @@ try {
   /* no .env — fine */
 }
 
+import type { Lang } from './types'
+
 const env = process.env
 
 export type ImageProvider = 'mock' | 'pollinations' | 'gemini' | 'fal-flux'
-export type VideoProvider = 'mock' | 'fal-ltx'
-export type VoiceProvider = 'mock' | 'gemini' | 'openai' | 'elevenlabs'
-export type LLMProvider = 'mock' | 'gemini' | 'anthropic'
+export type VideoProvider = 'mock' | 'fal-ltx' | 'fal-kling' | 'fal-talk'
+export type VoiceProvider = 'mock' | 'gemini' | 'openai' | 'elevenlabs' | 'fal-elevenlabs'
+export type LLMProvider = 'mock' | 'gemini' | 'anthropic' | 'fal'
 
 export interface AgentConfig {
   llm: LLMProvider
@@ -37,6 +39,15 @@ export interface AgentConfig {
   anthropicModel: string
   falKey?: string
   falVideoModel: string
+  falTextModel: string
+  falImageModel: string
+  falTTSModel: string
+  falTalkModel: string
+  falKlingModel: string
+  falLipsyncModel: string
+  falLipsync: boolean
+  /** Languages to render lip-synced talking video for (others get audio+subs). */
+  lipsyncLangs: Lang[]
   openaiKey?: string
   elevenKey?: string
   elevenVoiceId: string
@@ -47,17 +58,17 @@ export interface AgentConfig {
 
 const gem = env.GEMINI_API_KEY || env.GOOGLE_API_KEY
 
+const fal = env.FAL_KEY
+
 export const config: AgentConfig = {
-  // Auto-select real providers when a key is present, unless explicitly forced.
-  // One free Gemini key powers script + image + voice.
+  // Premium path: when a fal key is present, route EVERYTHING through fal.ai
+  // (openai/gpt-4o script, Flux images, ElevenLabs voices, talking-head video).
   llm:
     (env.NETFRUIT_LLM as LLMProvider) ||
-    (env.ANTHROPIC_API_KEY ? 'anthropic' : gem ? 'gemini' : 'mock'),
-  // Gemini image gen needs billing (free tier = 0 quota), so default images to
-  // Pollinations: free, no key, Flux-grade quality. Gemini stays opt-in.
-  image: (env.NETFRUIT_IMAGE as ImageProvider) || 'pollinations',
-  video: (env.NETFRUIT_VIDEO as VideoProvider) || 'mock',
-  voice: (env.NETFRUIT_VOICE as VoiceProvider) || (gem ? 'gemini' : 'mock'),
+    (fal ? 'fal' : env.ANTHROPIC_API_KEY ? 'anthropic' : gem ? 'gemini' : 'mock'),
+  image: (env.NETFRUIT_IMAGE as ImageProvider) || (fal ? 'fal-flux' : 'pollinations'),
+  video: (env.NETFRUIT_VIDEO as VideoProvider) || (fal ? 'fal-kling' : 'mock'),
+  voice: (env.NETFRUIT_VOICE as VoiceProvider) || (fal ? 'fal-elevenlabs' : gem ? 'gemini' : 'mock'),
 
   geminiKey: gem,
   geminiImageModel: env.NETFRUIT_GEMINI_IMAGE || 'gemini-2.5-flash-image',
@@ -67,8 +78,19 @@ export const config: AgentConfig = {
 
   anthropicKey: env.ANTHROPIC_API_KEY,
   anthropicModel: env.NETFRUIT_LLM_MODEL || 'claude-haiku-4-5',
-  falKey: env.FAL_KEY,
+
+  falKey: fal,
   falVideoModel: env.NETFRUIT_FAL_VIDEO || 'fal-ai/ltx-video/image-to-video',
+  falTextModel: env.NETFRUIT_FAL_TEXT || 'openai/gpt-4o',
+  falImageModel: env.NETFRUIT_FAL_IMAGE || 'fal-ai/flux/dev',
+  falTTSModel: env.NETFRUIT_FAL_TTS || 'fal-ai/elevenlabs/tts/multilingual-v2',
+  falTalkModel: env.NETFRUIT_FAL_TALK || 'fal-ai/sadtalker',
+  falKlingModel: env.NETFRUIT_FAL_KLING || 'fal-ai/kling-video/v1.6/standard/image-to-video',
+  falLipsyncModel: env.NETFRUIT_FAL_LIPSYNC || 'fal-ai/sync-lipsync',
+  // Attempt real phoneme lip-sync on top of the Kling clip (graceful fallback).
+  falLipsync: env.NETFRUIT_LIPSYNC !== '0',
+  lipsyncLangs: (env.NETFRUIT_LIPSYNC_LANGS?.split(',') as Lang[]) || ['fr'],
+
   openaiKey: env.OPENAI_API_KEY,
   elevenKey: env.ELEVENLABS_API_KEY,
   elevenVoiceId: env.ELEVENLABS_VOICE_ID || 'Rachel',

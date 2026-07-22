@@ -2,6 +2,7 @@ import { config, log } from '../config'
 import type { Brief, Character, Concept, Lang } from '../types'
 import { FRUIT_THEMES } from '../../src/data/series'
 import { geminiText } from './gemini'
+import { falRun } from './fal'
 
 const slug = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -13,8 +14,8 @@ const FRUIT_LABEL: Record<string, string> = {
   coconut: 'coconut', apple: 'apple', avocado: 'avocado', dragonfruit: 'dragonfruit',
 }
 
-// Distinct Gemini TTS prebuilt voices assigned round-robin to characters.
-const VOICE_POOL = ['Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede', 'Leda', 'Orus', 'Zephyr']
+// Distinct ElevenLabs (fal) voices assigned round-robin to characters.
+const VOICE_POOL = ['Roger', 'Sarah', 'George', 'Charlotte', 'Callum', 'Alice', 'Brian', 'Jessica']
 
 function assignVoices(chars: Character[]): Character[] {
   return chars.map((c, i) => ({ ...c, voice: c.voice || VOICE_POOL[i % VOICE_POOL.length] }))
@@ -107,10 +108,14 @@ Return ONLY minified JSON, no prose, matching EXACTLY:
  "shots":[{"speaker":str,"visualPrompt":str,"captions":{"en":str,"fr":str,"es":str},"durationSec":int}]}
 
 Rules:
-- 2 to 4 named fruit CHARACTERS with vivid looks. "voice" = one of: Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, Zephyr (distinct per character).
+- 2 to 4 named CHARACTERS. Each is a Pixar-style 3D fruit MASCOT with a clearly visible
+  cartoon face — big expressive eyes, eyebrows, and an open mouth — and a little body/outfit.
+  Put that in "look". "voice" = one of: Roger, Sarah, George, Charlotte, Callum, Alice, Brian, Jessica (distinct per character).
 - Exactly {{N}} shots forming a real story arc: hook → rising tension → twist → CLIFFHANGER. Make it loufoque (zany), dramatic and suspenseful.
 - Each shot = ONE punchy spoken line by a character (use their name in "speaker"; use "Narrator" for narration). "captions" gives that line in EN, FR, ES — natural, idiomatic, funny (not literal).
-- "visualPrompt" MUST describe camera MOTION and ACTION (push-in, orbit, slam, run, explosion, rack focus) for a video model — never a static portrait. Keep the same character look consistent across shots. English only for title/synopsis/visualPrompt.
+- "visualPrompt" renders the SPEAKING character front-facing, face clearly visible and close enough
+  to read the mouth, Pixar 3D style, plus camera MOTION and ACTION (push-in, gesturing, slam, dramatic lighting).
+  Keep each character's look consistent across shots. English only for title/synopsis/visualPrompt.
 - durationSec 5–8 per shot.`
 
 function userPrompt(brief: Brief): string {
@@ -191,9 +196,25 @@ async function geminiConcept(brief: Brief): Promise<Concept> {
   return parseConcept(text, brief)
 }
 
+async function falConcept(brief: Brief): Promise<Concept> {
+  const res = await falRun<{ output?: string }>('fal-ai/any-llm', {
+    model: config.falTextModel,
+    system_prompt: systemPrompt(),
+    prompt: userPrompt(brief),
+  })
+  return parseConcept(String(res.output ?? ''), brief)
+}
+
 export async function generateConcept(brief: Brief): Promise<Concept> {
   void FRUIT_THEMES
-  if (config.llm === 'anthropic' && config.anthropicKey) {
+  if (config.llm === 'fal' && config.falKey) {
+    try {
+      log('script', `fal any-llm (${config.falTextModel}) writing "${brief.fruit}"…`)
+      return await falConcept(brief)
+    } catch (e) {
+      log('script', `fal LLM failed (${(e as Error).message}); using mock.`)
+    }
+  } else if (config.llm === 'anthropic' && config.anthropicKey) {
     try {
       log('script', `Claude (${config.anthropicModel}) writing "${brief.fruit}"…`)
       return await anthropicConcept(brief)

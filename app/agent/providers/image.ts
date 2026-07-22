@@ -2,6 +2,7 @@ import { config, log } from '../config'
 import { FRUIT_THEMES, type FruitKey } from '../../src/data/series'
 import { publicPath, publicUrl, writeText, writeBinary } from '../util'
 import { geminiImage } from './gemini'
+import { falRun, fetchBytes } from './fal'
 
 export interface ImageRequest {
   seriesId: string
@@ -12,10 +13,17 @@ export interface ImageRequest {
   ratio: 'portrait' | 'landscape'
 }
 
+/** A rendered image: local URL for the app + optional remote (fal) URL for chaining. */
+export interface ImageResult {
+  url: string
+  remote?: string
+}
+
 const DIMS = {
   portrait: { w: 720, h: 1080 },
   landscape: { w: 1280, h: 720 },
 }
+const FLUX_SIZE = { portrait: 'portrait_4_3', landscape: 'landscape_16_9' } as const
 
 /* ------------------------- mock: local SVG key art ------------------------- */
 
@@ -46,73 +54,61 @@ function mockSvg(req: ImageRequest): string {
 </svg>`
 }
 
-/* ----------------------- pollinations: free, no key ------------------------ */
+/* -------------------------------- providers -------------------------------- */
 
-async function pollinations(req: ImageRequest, absPng: string, urlPng: string) {
+async function pollinations(req: ImageRequest, absPng: string) {
   const { w, h } = DIMS[req.ratio]
   const u = `https://image.pollinations.ai/prompt/${encodeURIComponent(req.prompt)}?width=${w}&height=${h}&nologo=true`
   const res = await fetch(u)
   if (!res.ok) throw new Error(`pollinations ${res.status}`)
   await writeBinary(absPng, Buffer.from(await res.arrayBuffer()))
-  return urlPng
 }
 
-/* --------------------------- fal-flux: cheap flux -------------------------- */
-
-async function falFlux(req: ImageRequest, absPng: string, urlPng: string) {
-  const res = await fetch('https://fal.run/fal-ai/flux/schnell', {
-    method: 'POST',
-    headers: { Authorization: `Key ${config.falKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt: req.prompt, image_size: req.ratio === 'portrait' ? 'portrait_16_9' : 'landscape_16_9' }),
-  })
-  if (!res.ok) throw new Error(`fal ${res.status}`)
-  const json = await res.json()
-  const imgUrl = json.images?.[0]?.url
-  if (!imgUrl) throw new Error('fal: no image url')
-  const bin = await fetch(imgUrl)
-  await writeBinary(absPng, Buffer.from(await bin.arrayBuffer()))
-  return urlPng
-}
-
-/** Renders one image; returns its public URL. Falls back to mock SVG on failure. */
-export async function generateImage(req: ImageRequest): Promise<string> {
+/** Renders one image; returns local URL + remote URL. Falls back to mock SVG. */
+export async function generateImage(req: ImageRequest): Promise<ImageResult> {
   const dir = ['generated', req.seriesId]
-  const svgAbs = publicPath(...dir, `${req.name}.svg`)
-  const svgUrl = publicUrl(...dir, `${req.name}.svg`)
   const pngAbs = publicPath(...dir, `${req.name}.png`)
   const pngUrl = publicUrl(...dir, `${req.name}.png`)
+  const svgAbs = publicPath(...dir, `${req.name}.svg`)
+  const svgUrl = publicUrl(...dir, `${req.name}.svg`)
 
-  if (config.image === 'gemini' && config.geminiKey) {
+  if (config.image === 'fal-flux' && config.falKey) {
+    try {
+      log('image', `flux ← ${req.name}`)
+      const json = await falRun<{ images?: { url: string }[] }>(config.falImageModel, {
+        prompt: req.prompt,
+        image_size: FLUX_SIZE[req.ratio],
+        num_images: 1,
+      })
+      const remote = json.images?.[0]?.url
+      if (!remote) throw new Error('flux: no image url')
+      await writeBinary(pngAbs, await fetchBytes(remote))
+      return { url: pngUrl, remote }
+    } catch (e) {
+      log('image', `flux failed (${(e as Error).message}); mock fallback`)
+    }
+  } else if (config.image === 'gemini' && config.geminiKey) {
     try {
       log('image', `gemini ← ${req.name}`)
-      const ratioHint =
-        req.ratio === 'portrait'
-          ? ' Vertical 2:3 movie-poster composition.'
-          : ' Wide 16:9 cinematic composition.'
+      const ratioHint = req.ratio === 'portrait' ? ' Vertical 2:3.' : ' Wide 16:9.'
       const { data, ext } = await geminiImage(req.prompt + ratioHint)
       const abs = publicPath(...dir, `${req.name}.${ext}`)
       await writeBinary(abs, data)
-      return publicUrl(...dir, `${req.name}.${ext}`)
+      return { url: publicUrl(...dir, `${req.name}.${ext}`) }
     } catch (e) {
-      log('image', `gemini failed (${(e as Error).message}); SVG fallback`)
+      log('image', `gemini failed (${(e as Error).message}); mock fallback`)
     }
   } else if (config.image === 'pollinations') {
     try {
       log('image', `pollinations ← ${req.name}`)
-      return await pollinations(req, pngAbs, pngUrl)
+      await pollinations(req, pngAbs)
+      return { url: pngUrl }
     } catch (e) {
-      log('image', `pollinations failed (${(e as Error).message}); SVG fallback`)
-    }
-  } else if (config.image === 'fal-flux' && config.falKey) {
-    try {
-      log('image', `flux ← ${req.name}`)
-      return await falFlux(req, pngAbs, pngUrl)
-    } catch (e) {
-      log('image', `flux failed (${(e as Error).message}); SVG fallback`)
+      log('image', `pollinations failed (${(e as Error).message}); mock fallback`)
     }
   }
 
   log('image', `mock SVG ← ${req.name}`)
   await writeText(svgAbs, mockSvg(req))
-  return svgUrl
+  return { url: svgUrl }
 }

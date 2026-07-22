@@ -1,4 +1,4 @@
-import { providerSignature, log } from './config'
+import { config, providerSignature, log } from './config'
 import { upsertCatalog } from './catalog'
 import { generateConcept } from './providers/llm'
 import { generateImage } from './providers/image'
@@ -18,7 +18,7 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
   console.log(`\n🍓 Producing "${concept.meta.title}" (${concept.meta.fruit}) — ${id}`)
 
   // 1. Poster / key art
-  const posterUrl = await generateImage({
+  const poster = await generateImage({
     seriesId: id,
     fruit: concept.meta.fruit,
     prompt: concept.posterPrompt,
@@ -28,42 +28,52 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
 
   // Map each character to its distinct voice (Narrator falls back sensibly).
   const voiceOf = new Map(concept.episode.characters.map((c) => [c.name, c.voice]))
-  const narratorVoice = voiceOf.get('Narrator') ?? 'Charon'
+  const narratorVoice = voiceOf.get('Narrator') ?? 'Roger'
+  const lipsyncLang = config.lipsyncLangs[0] ?? 'en'
 
-  // 2. Per-shot media (keyframe → clip → voice), sequentially to stay gentle
-  //    on free rate limits.
+  // 2. Per-shot media. Order matters for lip-sync: image → voices → video,
+  //    so the video model can be driven by the character's voice track.
   const shots: ShotAssets[] = []
   for (const shot of concept.episode.shots) {
-    const imagePath = await generateImage({
+    const image = await generateImage({
       seriesId: id,
       fruit: concept.meta.fruit,
       prompt: shot.visualPrompt,
       name: `shot-${shot.index}`,
-      ratio: 'landscape',
+      ratio: 'portrait',
     })
-    const clipPath = await generateClip({
-      seriesId: id,
-      name: `clip-${shot.index}`,
-      imageUrl: imagePath,
-      prompt: shot.visualPrompt,
-      durationSec: shot.durationSec,
-    })
-    // Voice-over in every language (EN/FR/ES minimum), in the character's voice
+
+    // Voice-over in every language, in this character's distinct voice
     const voice = voiceOf.get(shot.speaker) ?? narratorVoice
     const voiceUrls = {} as Record<Lang, string | null>
+    let lipsyncAudioRemote: string | undefined
     for (const lang of LANGS) {
-      voiceUrls[lang] = await generateVoice({
+      const v = await generateVoice({
         seriesId: id,
         name: `voice-${shot.index}-${lang}`,
         text: shot.captions[lang],
         lang,
         voice,
       })
+      voiceUrls[lang] = v.url
+      if (lang === lipsyncLang) lipsyncAudioRemote = v.remote
     }
+
+    // Talking, moving clip — driven by the primary-language voice for lip-sync
+    const clipPath = await generateClip({
+      seriesId: id,
+      name: `clip-${shot.index}`,
+      imageUrl: image.url,
+      imageRemote: image.remote,
+      audioRemote: lipsyncAudioRemote,
+      prompt: shot.visualPrompt,
+      durationSec: shot.durationSec,
+    })
+
     shots.push({
       index: shot.index,
       speaker: shot.speaker,
-      imagePath,
+      imagePath: image.url,
       clipPath,
       voiceUrls,
       captions: shot.captions,
@@ -79,7 +89,7 @@ export async function produceSeries(brief: Brief): Promise<GeneratedSeries> {
     ...concept.meta,
     generated: true,
     newBadge: true,
-    posterUrl,
+    posterUrl: poster.url,
     episodeManifest,
     producedBy: providerSignature(),
   }
