@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+
+  /* Berry-tinted dark cinematic base */
+  --color-ink-950: #0c060a;
+  --color-ink-900: #14090f;
+  --color-ink-800: #1e0d15;
+  --color-ink-700: #2a121d;
+
+  /* NETFRUIT signature deep red */
+  --color-fruit-red: #c31026;
+  --color-fruit-red-bright: #ff2740;
+
+  /* Fruit accent palette */
+  --color-strawberry: #e8384f;
+  --color-raspberry: #d61a5c;
+  --color-grape: #8b4a9c;
+  --color-blueberry: #4457c4;
+  --color-orange: #ff8a2a;
+  --color-lime: #a7cf4a;
+  --color-cream: #fdf3ec;
+}
+
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    margin: 0;
+    background: var(--color-ink-950);
+    color: var(--color-cream);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: var(--color-fruit-red-bright);
+    color: #fff;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+  }
+  .text-shadow-cinema {
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+  .mask-fade-r {
+    -webkit-mask-image: linear-gradient(to right, #000 82%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 82%, transparent 100%);
+  }
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-ticker {
+  animation: ticker 40s linear infinite;
+}
+
+/* Ken-Burns slow pan/zoom for still-image episode shots */
+@keyframes kenburns {
+  0% { transform: scale(1.05) translate(0, 0); }
+  100% { transform: scale(1.18) translate(-2%, -2%); }
+}
+.animate-kenburns {
+  animation: kenburns var(--kb-dur, 6s) ease-out both;
+}

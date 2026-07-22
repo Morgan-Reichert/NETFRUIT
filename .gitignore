@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+app/node_modules/
+
+# Build output
+dist/
+app/dist/
+
+# Local secrets — never commit
+.env
+app/.env
+*.local
+
+# Generated media artifacts (large; produced by the agent)
+app/public/generated/
+app/public/catalog.json
+
+# OS / editor
+.DS_Store
+*.log
+
+# Scratch
+scratchpad/
