@@ -28,6 +28,12 @@
         "title": "Blood and Grape — Episode 1",
         "manifest": "/generated/blood-and-grape/e1/episode.json",
         "durationSec": 53
+      },
+      {
+        "number": 2,
+        "title": "Seeds of Suspicion",
+        "manifest": "/generated/blood-and-grape/e2/episode.json",
+        "durationSec": 60
       }
     ],
     "producedBy": "llm:fal|img:fal-nano|vid:fal-wan|voice:fal-elevenlabs"
