@@ -216,7 +216,7 @@ export default function EpisodePlayer({
           </div>
 
           {/* Controls */}
-          <div className="safe-bottom safe-x flex items-center gap-4 bg-black px-5 py-4">
+          <div className="pad-b-safe pad-x-nav flex items-center gap-4 bg-black pt-4">
             <button onClick={onClose} className="text-cream/70 transition hover:text-cream" aria-label="Close">
               <CloseIcon />
             </button>

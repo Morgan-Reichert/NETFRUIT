@@ -57,16 +57,17 @@
   .font-display {
     font-family: var(--font-display);
   }
-  /* PWA safe-area insets (notch / home indicator) */
+  /* PWA safe-area insets (notch / home indicator). These ADD to a comfortable
+     base so elements never hug the screen edge, even when the inset is 0. */
   .safe-top {
-    padding-top: env(safe-area-inset-top);
+    padding-top: calc(env(safe-area-inset-top) + 0.25rem);
   }
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+  .pad-x-nav {
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
   }
-  .safe-x {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+  .pad-b-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
   .grain::after {
     content: '';
@@ -83,6 +84,13 @@
   .mask-fade-r {
     -webkit-mask-image: linear-gradient(to right, #000 82%, transparent 100%);
     mask-image: linear-gradient(to right, #000 82%, transparent 100%);
+  }
+}
+
+@media (min-width: 640px) {
+  .pad-x-nav {
+    padding-left: max(2.5rem, env(safe-area-inset-left));
+    padding-right: max(2.5rem, env(safe-area-inset-right));
   }
 }
 

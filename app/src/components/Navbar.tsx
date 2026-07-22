@@ -26,7 +26,7 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
           : 'bg-gradient-to-b from-black/80 via-black/30 to-transparent'
       }`}
     >
-      <nav className="safe-x mx-auto flex h-16 max-w-[1600px] items-center gap-6 px-4 sm:h-20 sm:px-10">
+      <nav className="pad-x-nav mx-auto flex h-16 max-w-[1600px] items-center gap-6 sm:h-20">
         {/* Logo */}
         <a href="#top" className="flex shrink-0 items-center gap-2">
           <img
