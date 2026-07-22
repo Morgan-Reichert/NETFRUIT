@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect } from 'react'
-import { FRUIT_THEMES, type Series } from '../data/series'
+import { fruitTheme, type Series } from '../data/series'
 import { similarTo } from '../lib/recommend'
 import { useUser } from '../lib/store'
 import Poster from './Poster'
@@ -178,7 +178,7 @@ export default function DetailModal({
                       key={s.id}
                       onClick={() => onOpen(s)}
                       className="overflow-hidden rounded-lg ring-1 ring-white/10 transition hover:ring-2"
-                      style={{ boxShadow: `0 8px 20px -12px ${FRUIT_THEMES[s.fruit].to}` }}
+                      style={{ boxShadow: `0 8px 20px -12px ${fruitTheme(s.fruit).to}` }}
                     >
                       <Poster series={s} ratio="portrait" />
                     </button>

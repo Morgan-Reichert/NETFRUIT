@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { allSeries, FRUIT_THEMES, type Series } from '../data/series'
+import { allSeries, fruitTheme, type Series } from '../data/series'
 import Poster from './Poster'
 import { CloseIcon, SearchIcon } from './icons'
 
@@ -75,7 +75,7 @@ export default function SearchOverlay({
                     key={s.id}
                     onClick={() => { onClose(); onOpen(s) }}
                     className="group overflow-hidden rounded-xl text-left ring-1 ring-white/10 transition hover:ring-2"
-                    style={{ boxShadow: `0 10px 30px -14px ${FRUIT_THEMES[s.fruit].to}` }}
+                    style={{ boxShadow: `0 10px 30px -14px ${fruitTheme(s.fruit).to}` }}
                   >
                     <Poster series={s} ratio="portrait" />
                   </button>

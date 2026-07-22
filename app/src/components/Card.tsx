@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { FRUIT_THEMES, type Series } from '../data/series'
+import { fruitTheme, type Series } from '../data/series'
 import { useUser } from '../lib/store'
 import Poster from './Poster'
 import { CheckIcon, ThumbUpIcon } from './icons'
@@ -15,7 +15,7 @@ export default function Card({
   onOpen: (s: Series) => void
   showProgress?: boolean
 }) {
-  const t = FRUIT_THEMES[series.fruit]
+  const t = fruitTheme(series.fruit)
   const { state } = useUser()
   const progress = state.watched[series.id]?.progress ?? 0
   const inList = !!state.myList[series.id]

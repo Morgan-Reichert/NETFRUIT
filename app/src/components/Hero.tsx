@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { FRUIT_THEMES, type Series } from '../data/series'
+import { fruitTheme, type Series } from '../data/series'
 
 export default function Hero({
   series,
@@ -10,7 +10,7 @@ export default function Hero({
   onOpen: (s: Series) => void
   onPlay: (s: Series) => void
 }) {
-  const t = FRUIT_THEMES[series.fruit]
+  const t = fruitTheme(series.fruit)
   return (
     <section id="top" className="relative min-h-[92vh] w-full overflow-hidden">
       {/* Cinematic backdrop */}

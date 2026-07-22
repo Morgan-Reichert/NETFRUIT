@@ -1,4 +1,4 @@
-import { FRUIT_THEMES, type Series } from '../data/series'
+import { fruitTheme, type Series } from '../data/series'
 
 type Ratio = 'portrait' | 'landscape' | 'square'
 
@@ -25,7 +25,7 @@ export default function Poster({
   showTitle?: boolean
   className?: string
 }) {
-  const t = FRUIT_THEMES[series.fruit]
+  const t = fruitTheme(series.fruit)
   return (
     <div
       className={`grain relative isolate h-full w-full overflow-hidden ${className}`}

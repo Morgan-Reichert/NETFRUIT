@@ -15,6 +15,10 @@ export type FruitKey =
   | 'apple'
   | 'avocado'
   | 'dragonfruit'
+  | 'pomegranate'
+  | 'pear'
+  | 'raspberry'
+  | 'lime'
 
 export interface FruitTheme {
   glyph: string
@@ -41,7 +45,15 @@ export const FRUIT_THEMES: Record<FruitKey, FruitTheme> = {
   apple:       { glyph: '🍎', from: '#5c0a10', to: '#d61e2b', glow: '#ff4a56', ink: '#fff0f0' },
   avocado:     { glyph: '🥑', from: '#25400f', to: '#7a9b34', glow: '#b6d96b', ink: '#f2ffe0' },
   dragonfruit: { glyph: '🐉', from: '#4a0b3d', to: '#e83a8f', glow: '#ff6bb5', ink: '#fff0f8' },
+  pomegranate: { glyph: '🍎', from: '#5c0716', to: '#b91232', glow: '#ff445c', ink: '#fff0f2' },
+  pear:        { glyph: '🍐', from: '#3f4d0a', to: '#a6c23a', glow: '#d0ec6b', ink: '#f4ffe0' },
+  raspberry:   { glyph: '🍓', from: '#5c0a2e', to: '#c72366', glow: '#ff5a95', ink: '#fff0f6' },
+  lime:        { glyph: '🍋', from: '#274d0a', to: '#7ab933', glow: '#b6ec6b', ink: '#f2ffe0' },
 }
+
+/** Defensive theme lookup — never crashes on an unknown/generated fruit. */
+export const fruitTheme = (fruit: string): FruitTheme =>
+  FRUIT_THEMES[fruit as FruitKey] ?? FRUIT_THEMES.strawberry
 
 export interface Series {
   id: string
@@ -348,6 +360,10 @@ export const FRUIT_FAMILY: Record<FruitKey, string> = {
   peach: 'stone',
   apple: 'pome',
   avocado: 'stone',
+  pomegranate: 'berry',
+  pear: 'pome',
+  raspberry: 'berry',
+  lime: 'citrus',
 }
 
 export interface Row {
