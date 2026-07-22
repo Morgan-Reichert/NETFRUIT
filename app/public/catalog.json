@@ -41,6 +41,12 @@
         "title": "Trending",
         "manifest": "/generated/overripe/e3/episode.json",
         "durationSec": 59
+      },
+      {
+        "number": 4,
+        "title": "The Crash",
+        "manifest": "/generated/overripe/e4/episode.json",
+        "durationSec": 40
       }
     ],
     "producedBy": "grok (manual)"

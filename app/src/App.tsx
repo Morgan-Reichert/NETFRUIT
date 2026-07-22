@@ -36,16 +36,17 @@ export default function App() {
   // Feed reacts to every like / watch / list change, and to the async catalog load.
   const feed = useMemo(() => buildFeed(state), [state, catalogVersion])
 
-  // Hero: brand pick by default, best personalized pick once there's history.
+  // Hero: an explicitly featured title always wins; otherwise the best pick.
   const featured = useMemo(() => {
     const pool = allSeries()
+    const flagged = pool.find((s) => s.featured)
+    if (flagged) return flagged
     const aff = buildAffinity(state)
-    const flagged = pool.find((s) => s.featured) ?? pool[0]
-    if (aff.seeds.length === 0) return flagged
+    if (aff.seeds.length === 0) return pool[0]
     const best = [...pool]
       .filter((s) => !state.disliked[s.id])
       .sort((a, b) => scoreForYou(b, aff) - scoreForYou(a, aff))[0]
-    return best ?? flagged
+    return best ?? pool[0]
   }, [state, catalogVersion])
 
   // Category chips actually filter every row; empty rows disappear.
