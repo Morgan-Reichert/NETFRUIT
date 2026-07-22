@@ -1,0 +1,110 @@
+{
+  "seriesId": "blood-and-grape/e1",
+  "title": "Blood and Grape — Episode 1",
+  "logline": "In the vineyard of betrayal, the Grape Family's reign is threatened by a rival fruitgang's insidious plot. Can they hold their dynasty together?",
+  "durationSec": 53,
+  "langs": [
+    "en",
+    "fr",
+    "es"
+  ],
+  "shots": [
+    {
+      "speaker": "Narrator",
+      "imageUrl": "/generated/blood-and-grape/e1/shot-0.png",
+      "clipUrl": "/generated/blood-and-grape/e1/clip-0.mp4",
+      "voiceUrls": {
+        "en": "/generated/blood-and-grape/e1/voice-0-en.mp3",
+        "fr": "/generated/blood-and-grape/e1/voice-0-fr.mp3",
+        "es": "/generated/blood-and-grape/e1/voice-0-es.mp3"
+      },
+      "captions": {
+        "en": "In the vineyard of deceit, the grape family stands on the brink.",
+        "fr": "Dans le vignoble de la tromperie, la famille raisin est au bord du gouffre.",
+        "es": "En el viñedo de engaños, la familia uva está al borde del abismo."
+      },
+      "durationSec": 10
+    },
+    {
+      "speaker": "Vito Grapeano",
+      "imageUrl": "/generated/blood-and-grape/e1/shot-1.png",
+      "clipUrl": "/generated/blood-and-grape/e1/clip-1.mp4",
+      "voiceUrls": {
+        "en": "/generated/blood-and-grape/e1/voice-1-en.mp3",
+        "fr": "/generated/blood-and-grape/e1/voice-1-fr.mp3",
+        "es": "/generated/blood-and-grape/e1/voice-1-es.mp3"
+      },
+      "captions": {
+        "en": "Who dares threaten my vineyard?",
+        "fr": "Qui ose menacer mon vignoble ?",
+        "es": "¿Quién se atreve a amenazar mi viñedo?"
+      },
+      "durationSec": 8
+    },
+    {
+      "speaker": "Gina Raisino",
+      "imageUrl": "/generated/blood-and-grape/e1/shot-2.png",
+      "clipUrl": "/generated/blood-and-grape/e1/clip-2.mp4",
+      "voiceUrls": {
+        "en": "/generated/blood-and-grape/e1/voice-2-en.mp3",
+        "fr": "/generated/blood-and-grape/e1/voice-2-fr.mp3",
+        "es": "/generated/blood-and-grape/e1/voice-2-es.mp3"
+      },
+      "captions": {
+        "en": "The Lemons are plotting against us!",
+        "fr": "Les citrons complotent contre nous!",
+        "es": "¡Los limones conspiran contra nosotros!"
+      },
+      "durationSec": 9
+    },
+    {
+      "speaker": "Don Lemoncello",
+      "imageUrl": "/generated/blood-and-grape/e1/shot-3.png",
+      "clipUrl": "/generated/blood-and-grape/e1/clip-3.mp4",
+      "voiceUrls": {
+        "en": "/generated/blood-and-grape/e1/voice-3-en.mp3",
+        "fr": "/generated/blood-and-grape/e1/voice-3-fr.mp3",
+        "es": "/generated/blood-and-grape/e1/voice-3-es.mp3"
+      },
+      "captions": {
+        "en": "Let the grape dynasty wither and fall!",
+        "fr": "Que la dynastie de raisins se dessèche et tombe!",
+        "es": "¡Que la dinastía de las uvas se marchite y caiga!"
+      },
+      "durationSec": 9
+    },
+    {
+      "speaker": "Vito Grapeano",
+      "imageUrl": "/generated/blood-and-grape/e1/shot-4.png",
+      "clipUrl": "/generated/blood-and-grape/e1/clip-4.mp4",
+      "voiceUrls": {
+        "en": "/generated/blood-and-grape/e1/voice-4-en.mp3",
+        "fr": "/generated/blood-and-grape/e1/voice-4-fr.mp3",
+        "es": "/generated/blood-and-grape/e1/voice-4-es.mp3"
+      },
+      "captions": {
+        "en": "War it is, then.",
+        "fr": "La guerre est déclarée, alors.",
+        "es": "Entonces, es la guerra."
+      },
+      "durationSec": 8
+    },
+    {
+      "speaker": "Narrator",
+      "imageUrl": "/generated/blood-and-grape/e1/shot-5.png",
+      "clipUrl": "/generated/blood-and-grape/e1/clip-5.mp4",
+      "voiceUrls": {
+        "en": "/generated/blood-and-grape/e1/voice-5-en.mp3",
+        "fr": "/generated/blood-and-grape/e1/voice-5-fr.mp3",
+        "es": "/generated/blood-and-grape/e1/voice-5-es.mp3"
+      },
+      "captions": {
+        "en": "The storm approaches. Can the grapes withstand the deluge?",
+        "fr": "La tempête approche. Les raisins peuvent-ils résister au déluge?",
+        "es": "La tormenta se acerca. ¿Pueden las uvas resistir el diluvio?"
+      },
+      "durationSec": 9
+    }
+  ],
+  "videoUrl": "/generated/blood-and-grape/e1/episode.mp4"
+}

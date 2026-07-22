@@ -1,5 +1,63 @@
 [
   {
+    "id": "blood-and-grape",
+    "title": "Blood and Grape",
+    "fruit": "grape",
+    "year": 2026,
+    "maturity": "16+",
+    "seasons": 1,
+    "match": 93,
+    "genres": [
+      "Crime",
+      "Drama",
+      "AI Original"
+    ],
+    "tags": [
+      "Mafia",
+      "Betrayal"
+    ],
+    "synopsis": "In the vineyard of betrayal, the Grape Family's reign is threatened by a rival fruitgang's insidious plot. Can they hold their dynasty together?",
+    "runtime": "1m 2s",
+    "generated": true,
+    "newBadge": true,
+    "posterUrl": "/generated/blood-and-grape/poster.png",
+    "episodeManifest": "/generated/blood-and-grape/e1/episode.json",
+    "episodes": [
+      {
+        "number": 1,
+        "title": "Blood and Grape — Episode 1",
+        "manifest": "/generated/blood-and-grape/e1/episode.json",
+        "durationSec": 53
+      }
+    ],
+    "producedBy": "llm:fal|img:fal-nano|vid:fal-wan|voice:fal-elevenlabs"
+  },
+  {
+    "id": "the-pomegranate-heist",
+    "title": "The Pomegranate Heist",
+    "fruit": "pomegranate",
+    "year": 2026,
+    "maturity": "16+",
+    "seasons": 1,
+    "match": 87,
+    "genres": [
+      "Crime",
+      "Comedy",
+      "AI Original"
+    ],
+    "tags": [
+      "Heist",
+      "Fruit Mafia"
+    ],
+    "synopsis": "A pomegranate-headed mob boss schemes with banana miners for the heist of a lifetime in the seedy fruit underworld.",
+    "runtime": "00:01:00",
+    "generated": true,
+    "newBadge": true,
+    "posterUrl": "/generated/the-pomegranate-heist/poster.png",
+    "episodeManifest": "/generated/the-pomegranate-heist/episode.json",
+    "producedBy": "llm:fal|img:fal-flux|vid:fal-kling|voice:fal-elevenlabs"
+  },
+  {
     "id": "the-dragonfruit-heist",
     "title": "The Dragonfruit Heist",
     "fruit": "dragonfruit",
