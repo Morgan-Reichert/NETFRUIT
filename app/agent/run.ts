@@ -25,9 +25,10 @@ async function main() {
   const fruit = arg('--fruit') as FruitKey | undefined
   const hint = arg('--hint')
   const season = arg('--season')
+  const fromEp = arg('--from-ep')
 
   if (season && fruit) {
-    await produceSeason({ fruit, hint }, Number(season))
+    await produceSeason({ fruit, hint }, Number(season), fromEp ? Number(fromEp) : 1)
     return
   }
   if (fruit) {

@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process'
 import { config, providerSignature, log } from './config'
-import { upsertCatalog } from './catalog'
+import { readCatalog, upsertCatalog } from './catalog'
 import { generateConcept, generateEpisode } from './providers/llm'
 import { generateImage } from './providers/image'
 import { generateClip } from './providers/video'
@@ -110,34 +110,48 @@ function commitAndPush(message: string, seriesId: string) {
  * ~1-minute episodes. Commits + pushes + notifies after EACH episode so it goes
  * online one by one.
  */
-export async function produceSeason(brief: Brief, episodeCount: number): Promise<GeneratedSeries> {
+export async function produceSeason(brief: Brief, episodeCount: number, startEp = 1): Promise<GeneratedSeries> {
   const concept = await generateConcept(brief)
-  const id = concept.meta.id
   const fruit = concept.meta.fruit
-  console.log(`\n🎬 Producing SEASON "${concept.meta.title}" — ${episodeCount} episodes (${id})`)
 
-  const poster = await generateImage({
-    seriesId: id, fruit, prompt: cinematic(concept.posterPrompt), name: 'poster', ratio: 'portrait',
-  })
+  // Resume support: when starting past episode 1, reuse the existing series
+  // (same id, poster, episodes so far) instead of creating a new one.
+  let id = concept.meta.id
+  let episodes: EpisodeRef[] = []
+  let entry: GeneratedSeries
+  let title = concept.meta.title
 
-  const episodes: EpisodeRef[] = []
-  let entry: GeneratedSeries = {
-    ...concept.meta, generated: true, newBadge: true,
-    posterUrl: poster.url, episodeManifest: '', episodes, producedBy: providerSignature(),
+  if (startEp > 1) {
+    const existing = (await readCatalog()).find((s) => s.fruit === fruit && s.episodes?.length)
+    if (!existing) throw new Error(`resume: no existing ${fruit} season found`)
+    id = existing.id
+    title = existing.title
+    episodes = [...(existing.episodes ?? [])]
+    entry = { ...existing, episodes }
+    console.log(`\n🎬 RESUMING SEASON "${title}" from episode ${startEp} (${id}) — ${episodes.length} already done`)
+  } else {
+    const poster = await generateImage({
+      seriesId: id, fruit, prompt: cinematic(concept.posterPrompt), name: 'poster', ratio: 'portrait',
+    })
+    entry = {
+      ...concept.meta, generated: true, newBadge: true,
+      posterUrl: poster.url, episodeManifest: '', episodes, producedBy: providerSignature(),
+    }
+    console.log(`\n🎬 Producing SEASON "${title}" — ${episodeCount} episodes (${id})`)
   }
 
-  let priorSummary = concept.meta.synopsis
-  for (let n = 1; n <= episodeCount; n++) {
+  let priorSummary = entry.synopsis ?? concept.meta.synopsis
+  for (let n = startEp; n <= episodeCount; n++) {
     // Episode 1 uses the concept; later episodes continue the saga.
     let epTitle: string, epLogline: string, shots: ShotPlan[]
     if (n === 1) {
-      epTitle = `${concept.meta.title} — Episode 1`
+      epTitle = `${title} — Episode 1`
       epLogline = concept.episode.logline
       shots = concept.episode.shots
     } else {
       log('script', `writing episode ${n}…`)
       const ep = await generateEpisode(
-        { title: concept.meta.title, genres: concept.meta.genres, characters: concept.episode.characters },
+        { title, genres: concept.meta.genres, characters: concept.episode.characters },
         n, priorSummary,
       )
       epTitle = ep.title
@@ -158,9 +172,9 @@ export async function produceSeason(brief: Brief, episodeCount: number): Promise
     log('publish', `✔ episode ${n}/${episodeCount} published`)
 
     // Ship it online + notify subscribers.
-    commitAndPush(`Season "${concept.meta.title}" — episode ${n}/${episodeCount}: ${epTitle}`, id)
+    commitAndPush(`Season "${title}" — episode ${n}/${episodeCount}: ${epTitle}`, id)
     await notifyDrop({
-      title: n === 1 ? `New series: ${concept.meta.title} 🍓` : `${concept.meta.title} — Ep. ${n} is live 🍿`,
+      title: n === 1 ? `New series: ${title} 🍓` : `${title} — Ep. ${n} is live 🍿`,
       body: epLogline || concept.meta.synopsis,
       url: '/',
     })
