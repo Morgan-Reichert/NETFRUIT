@@ -149,9 +149,11 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <div className="rounded-xl border border-dashed border-white/15 p-10 text-center text-cream/50">{children}</div>
 }
 function Brand({ small }: { small?: boolean }) {
+  const h = small ? 'h-6' : 'h-9'
   return (
-    <span className={`font-display font-extrabold tracking-tight ${small ? 'text-lg' : 'text-3xl'}`}>
-      <span className="text-brand-gradient">NETFRUIT</span> <span className="font-semibold text-cream/60">Studio</span>
+    <span className="inline-flex items-center gap-2 align-middle">
+      <img src="/brand/netfruit-long.png" alt="NETFRUIT" className={`${h} w-auto`} />
+      <img src="/brand/creator.png" alt="CREATOR" className={`${h} w-auto`} />
     </span>
   )
 }
