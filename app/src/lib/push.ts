@@ -6,6 +6,30 @@ const VAPID_PUBLIC = env.VITE_VAPID_PUBLIC_KEY
 export const pushSupported = () =>
   typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window && !!VAPID_PUBLIC && !!supabase
 
+const isIOS = () =>
+  typeof navigator !== 'undefined' &&
+  (/iP(hone|ad|od)/.test(navigator.userAgent) ||
+    // iPadOS reports as Mac; detect touch to disambiguate
+    (navigator.platform === 'MacIntel' && (navigator as unknown as { maxTouchPoints: number }).maxTouchPoints > 1))
+
+const isStandalone = () =>
+  typeof window !== 'undefined' &&
+  (window.matchMedia?.('(display-mode: standalone)').matches ||
+    (navigator as unknown as { standalone?: boolean }).standalone === true)
+
+/**
+ * Human explanation of why push can't be enabled here — or null if it can.
+ * The big one: iOS only allows Web Push from a PWA installed to the Home Screen.
+ */
+export function pushBlockedReason(): string | null {
+  if (pushSupported()) return null
+  if (isIOS() && !isStandalone())
+    return 'Sur iPhone/iPad : appuie sur Partager → « Sur l’écran d’accueil », puis rouvre NETFRUIT depuis l’icône pour activer les notifications.'
+  if (typeof Notification === 'undefined' || !('PushManager' in window))
+    return 'Ce navigateur ne supporte pas les notifications push.'
+  return 'Notifications indisponibles ici.'
+}
+
 function urlBase64ToUint8Array(base64: string): Uint8Array {
   const padding = '='.repeat((4 - (base64.length % 4)) % 4)
   const b64 = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/')

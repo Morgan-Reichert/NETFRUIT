@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ChevronDown } from './icons'
 import { useAuth } from '../lib/auth'
 import { avatarUrl, useProfiles } from '../lib/profiles'
-import { enablePush, isPushEnabled, pushSupported } from '../lib/push'
+import { enablePush, isPushEnabled, pushBlockedReason, pushSupported } from '../lib/push'
 
 const LINKS = ['Home', 'Series', 'New & Ripe', 'My Basket', 'Categories']
 
@@ -11,14 +11,19 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
   const [active, setActive] = useState('Home')
   const [menu, setMenu] = useState(false)
   const [pushOn, setPushOn] = useState(false)
+  const [pushMsg, setPushMsg] = useState<string | null>(null)
   const { user, signOut } = useAuth()
   const { active: profile, switchProfile } = useProfiles()
 
   useEffect(() => { isPushEnabled().then(setPushOn) }, [])
   const toggleNotifs = async () => {
     if (pushOn) return
+    const blocked = pushBlockedReason()
+    if (blocked) { setPushMsg(blocked); return }
+    setPushMsg('Activation…')
     const r = await enablePush()
-    if (r.ok) setPushOn(true)
+    if (r.ok) { setPushOn(true); setPushMsg('Notifications activées ✓') }
+    else setPushMsg(r.error ?? 'Échec de l’activation.')
   }
 
   useEffect(() => {
@@ -121,14 +126,17 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
                   >
                     Switch profile
                   </button>
-                  {pushSupported() && (
-                    <button
-                      onClick={toggleNotifs}
-                      className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
-                    >
-                      <span>Notifications</span>
-                      <span className={pushOn ? 'text-lime' : 'text-cream/40'}>{pushOn ? 'On' : 'Enable'}</span>
-                    </button>
+                  <button
+                    onClick={toggleNotifs}
+                    className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
+                  >
+                    <span>Notifications</span>
+                    <span className={pushOn ? 'text-lime' : 'text-cream/40'}>
+                      {pushOn ? 'On' : pushSupported() ? 'Enable' : 'Setup'}
+                    </span>
+                  </button>
+                  {pushMsg && (
+                    <p className="px-4 pb-3 pt-0 text-xs leading-snug text-cream/55">{pushMsg}</p>
                   )}
                   {user ? (
                     <button
