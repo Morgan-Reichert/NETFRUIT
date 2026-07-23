@@ -12,6 +12,27 @@ export interface Creator {
 export type Monetization = 'free' | 'purchase' | 'subscription'
 export type SeriesStatus = 'draft' | 'pending' | 'published' | 'rejected'
 
+/** Revenue model (creator share of each stream) + token economics. Central so
+ *  the earnings UI and the future payout cron agree on the numbers. */
+export const REVENUE = {
+  adShare: 0.55,          // creator gets 55% of net ad revenue
+  tokenShare: 0.70,       // creator gets 70% of a spent token's gross value
+  subscriptionShare: 0.60,// 60% of sub price HT, split pro-rata by watch time
+  tokenValueEur: 0.10,    // gross monetary value of 1 token
+}
+
+export interface Payout {
+  id: string
+  creator_id: string
+  period: string
+  ad_cents: number
+  token_cents: number
+  subscription_cents: number
+  total_cents: number
+  status: 'pending' | 'paid'
+  created_at: string
+}
+
 export interface DbSeries {
   id: string
   creator_id: string
@@ -26,6 +47,8 @@ export interface DbSeries {
   is_original: boolean
   monetization: Monetization
   price_cents: number | null
+  episode_token_cost: number
+  in_premium: boolean
   status: SeriesStatus
   created_at: string
 }
@@ -41,6 +64,7 @@ export interface DbEpisode {
   duration_sec: number
   subtitles: unknown
   baked_audio: boolean
+  token_cost: number
 }
 
 const sb = () => {
@@ -76,12 +100,18 @@ export async function listMySeries(creatorId: string): Promise<DbSeries[]> {
 export async function createSeries(creatorId: string, p: {
   slug: string; title: string; synopsis: string; fruit: string; genres: string[];
   tags: string[]; poster_url: string | null; maturity: string;
-  monetization: Monetization; price_cents: number | null
+  monetization: Monetization; price_cents: number | null;
+  episode_token_cost: number; in_premium: boolean
 }): Promise<{ series?: DbSeries; error?: string }> {
   const { data, error } = await sb().from('series')
     .insert({ creator_id: creatorId, status: 'draft', ...p }).select().single()
   if (error) return { error: error.code === '23505' ? 'Ce slug de série existe déjà.' : error.message }
   return { series: data as DbSeries }
+}
+
+export async function listPayouts(creatorId: string): Promise<Payout[]> {
+  const { data } = await sb().from('payouts').select('*').eq('creator_id', creatorId).order('period', { ascending: false })
+  return (data as Payout[]) ?? []
 }
 
 export async function updateSeries(id: string, patch: Partial<DbSeries>) {

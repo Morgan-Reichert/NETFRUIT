@@ -43,15 +43,16 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
       <nav className="pad-x-nav mx-auto flex h-16 max-w-[1600px] items-center gap-6 sm:h-20">
         {/* Logo */}
         <a href="#top" className="flex shrink-0 items-center gap-2">
+          {/* Mobile: compact N mark. Desktop: full wordmark only, larger. */}
           <img
             src="/brand/netfruit-mini.png"
             alt="NETFRUIT"
-            className="h-9 w-auto drop-shadow-[0_2px_8px_rgba(255,39,64,0.35)] sm:h-10"
+            className="h-9 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] sm:hidden"
           />
           <img
             src="/brand/netfruit-long.png"
             alt="NETFRUIT"
-            className="hidden h-6 w-auto brightness-125 saturate-150 drop-shadow-[0_0_14px_rgba(255,39,64,0.45)] sm:block"
+            className="hidden h-10 w-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] sm:block lg:h-12"
           />
         </a>
 

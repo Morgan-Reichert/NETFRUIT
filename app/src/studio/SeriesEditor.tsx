@@ -22,7 +22,7 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
   const [fruit, setFruit] = useState('strawberry')
   const [genres, setGenres] = useState('')
   const [monetization, setMonetization] = useState<Monetization>('free')
-  const [price, setPrice] = useState('2.99')
+  const [tokenCost, setTokenCost] = useState('10')
   const [posterFile, setPosterFile] = useState<File | null>(null)
 
   useEffect(() => {
@@ -42,11 +42,14 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
     try {
       const slug = slugify(title)
       if (posterFile) poster_url = await uploadToBucket(creator.id, slug, `poster.${ext(posterFile)}`, posterFile)
+      const tok = monetization === 'purchase' ? Math.max(0, parseInt(tokenCost || '0', 10)) : 0
       const r = await createSeries(creator.id, {
         slug, title: title.trim(), synopsis: synopsis.trim(), fruit,
         genres: genres.split(',').map((g) => g.trim()).filter(Boolean),
         tags: [], poster_url, maturity: 'PG', monetization,
-        price_cents: monetization === 'purchase' ? Math.round(parseFloat(price || '0') * 100) : null,
+        price_cents: null,
+        episode_token_cost: tok,
+        in_premium: monetization === 'subscription',
       })
       setBusy(false)
       if (r.error) { setMsg(r.error); return }
@@ -66,6 +69,7 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
         series_id: series.id, season: 1, ep: number, number,
         title: epTitle.trim() || `Épisode ${number}`, video_url,
         duration_sec: duration, subtitles: null, baked_audio: true,
+        token_cost: series.episode_token_cost ?? 0,
       })
       setEpisodes(await listEpisodes(series.id))
       setMsg('Épisode ajouté ✓')
@@ -109,12 +113,14 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
           </Field>
           <Field label="Monétisation">
             <div className="space-y-2">
-              <Radio v="free" cur={monetization} set={setMonetization}>Gratuit</Radio>
-              <Radio v="purchase" cur={monetization} set={setMonetization}>Vente directe (tu fixes le prix, NETFRUIT prend une commission)</Radio>
-              <Radio v="subscription" cur={monetization} set={setMonetization}>Inclus dans l'abonnement NETFRUIT (rémunéré à la vue, plus de visibilité)</Radio>
+              <Radio v="free" cur={monetization} set={setMonetization}>Gratuit — financé par la pub (tu touches 55% des revenus pub)</Radio>
+              <Radio v="purchase" cur={monetization} set={setMonetization}>Jetons — pay-per-episode (tu touches 70% de chaque déblocage)</Radio>
+              <Radio v="subscription" cur={monetization} set={setMonetization}>Premium — inclus dans l'abonnement NETFRUIT (part de 60% au prorata du temps vu)</Radio>
               {monetization === 'purchase' && (
                 <div className="flex items-center gap-2 pl-6">
-                  <input value={price} onChange={(e) => setPrice(e.target.value)} className="w-24 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5" /><span className="text-cream/50">€</span>
+                  <span className="text-sm text-cream/60">Coût par épisode :</span>
+                  <input value={tokenCost} onChange={(e) => setTokenCost(e.target.value)} inputMode="numeric" className="w-20 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5" />
+                  <span className="text-cream/50">🪙 jetons</span>
                 </div>
               )}
             </div>
@@ -123,7 +129,7 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
           <button disabled={busy} onClick={create} className="rounded-full bg-fruit-red-bright px-6 py-2.5 font-bold text-white enabled:hover:brightness-110 disabled:opacity-40">
             {busy ? 'Création…' : 'Créer le brouillon'}
           </button>
-          <p className="text-xs text-cream/40">Les paiements ne sont pas encore actifs (Phase 2) — pour l'instant tout est visible gratuitement une fois publié.</p>
+          <p className="text-xs text-cream/40">Les paiements réels s'activeront avec Stripe (Phase 2). En attendant, les séries publiées sont visibles gratuitement — mais le mode et le prix que tu choisis ici sont déjà enregistrés.</p>
         </div>
       ) : (
         // ---------- EPISODES + SUBMIT ----------

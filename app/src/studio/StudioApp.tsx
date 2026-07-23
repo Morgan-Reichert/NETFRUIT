@@ -8,8 +8,9 @@ import Onboarding from './Onboarding'
 import SeriesEditor from './SeriesEditor'
 import Moderation from './Moderation'
 import Dashboard from './Dashboard'
+import Earnings from './Earnings'
 
-type View = { name: 'dashboard' } | { name: 'series' } | { name: 'editor'; id?: string } | { name: 'moderation' }
+type View = { name: 'dashboard' } | { name: 'series' } | { name: 'editor'; id?: string } | { name: 'revenue' } | { name: 'moderation' }
 
 const STATUS_STYLE: Record<string, string> = {
   draft: 'bg-white/10 text-cream/70',
@@ -80,6 +81,7 @@ export default function StudioApp() {
       <nav className="flex gap-1 overflow-x-auto border-b border-white/10 px-5">
         <Tab on={view.name === 'dashboard'} onClick={() => setView({ name: 'dashboard' })}>Tableau de bord</Tab>
         <Tab on={view.name === 'series' || view.name === 'editor'} onClick={() => setView({ name: 'series' })}>Mes séries</Tab>
+        <Tab on={view.name === 'revenue'} onClick={() => setView({ name: 'revenue' })}>Revenus</Tab>
         {admin && <Tab on={view.name === 'moderation'} onClick={() => setView({ name: 'moderation' })}>Modération</Tab>}
       </nav>
 
@@ -124,6 +126,8 @@ export default function StudioApp() {
             onBack={() => { refreshSeries(); setView({ name: 'series' }) }}
           />
         )}
+
+        {view.name === 'revenue' && <Earnings creator={creator} />}
 
         {view.name === 'moderation' && admin && <Moderation />}
       </main>
