@@ -98,10 +98,11 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
   const submit = async () => {
     if (!series) return
     if (episodes.length === 0) { setMsg('Ajoute au moins un épisode avant de soumettre.'); return }
-    setBusy(true)
-    await submitSeries(series.id)
-    setBusy(false)
-    onBack()
+    setBusy(true); setMsg(null)
+    try {
+      await submitSeries(series.id)
+      onBack()
+    } catch (e) { setMsg((e as Error).message) } finally { setBusy(false) }
   }
 
   return (

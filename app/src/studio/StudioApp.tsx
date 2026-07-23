@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/auth'
+import { supabase } from '../lib/supabase'
 import AuthModal from '../components/AuthModal'
 import { FrownIcon, HourglassIcon, MegaphoneIcon } from '../components/icons'
 import {
@@ -40,6 +41,17 @@ export default function StudioApp() {
     setCreator(c); setAdmin(isAdmin); setLoading(false)
   }
   useEffect(() => { refreshCreator() }, [user])
+
+  // Keep the auth token fresh while in the Studio so writes never fail as anon.
+  useEffect(() => {
+    if (!user || !supabase) return
+    supabase.auth.getSession().then(({ data }) => {
+      const s = data.session
+      if (s?.expires_at && s.expires_at * 1000 < Date.now() + 120_000) {
+        supabase!.auth.refreshSession().then(({ error }) => { if (error) supabase!.auth.signOut() })
+      }
+    })
+  }, [user])
 
   const refreshSeries = async () => { if (creator) setSeries(await listMySeries(creator.id)) }
   useEffect(() => { refreshSeries() }, [creator])

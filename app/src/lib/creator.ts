@@ -103,6 +103,22 @@ const sb = () => {
   return supabase
 }
 
+/**
+ * Guarantee a valid, non-expired auth token before a write. Supabase JWTs last
+ * ~1h; if the tab sat open the token can be stale → writes fail RLS as anon.
+ * Refresh proactively and turn that into a clear message.
+ */
+export async function ensureSession(): Promise<void> {
+  const c = sb()
+  const { data: { session } } = await c.auth.getSession()
+  if (!session) throw new Error('Session expirée — reconnecte-toi puis réessaie.')
+  const expMs = (session.expires_at ?? 0) * 1000
+  if (expMs && expMs < Date.now() + 60_000) {
+    const { data, error } = await c.auth.refreshSession()
+    if (error || !data.session) throw new Error('Session expirée — reconnecte-toi puis réessaie.')
+  }
+}
+
 export const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 48)
 
@@ -117,6 +133,7 @@ export async function applyAsCreator(userId: string, p: {
   socials?: Creator['socials']; portfolio_url?: string; experience?: string
   answers?: Record<string, string>; birth_date?: string; legal_name?: string; country?: string
 }): Promise<{ creator?: Creator; error?: string }> {
+  try { await ensureSession() } catch (e) { return { error: (e as Error).message } }
   const { data, error } = await sb().from('creators')
     .insert({
       id: userId, handle: p.handle, display_name: p.display_name, bio: p.bio ?? null,
@@ -160,6 +177,7 @@ export async function createSeries(creatorId: string, p: {
   monetization: Monetization; price_cents: number | null;
   episode_token_cost: number; in_premium: boolean
 }): Promise<{ series?: DbSeries; error?: string }> {
+  try { await ensureSession() } catch (e) { return { error: (e as Error).message } }
   const { data, error } = await sb().from('series')
     .insert({ creator_id: creatorId, status: 'draft', ...p }).select().single()
   if (error) return { error: error.code === '23505' ? 'Ce slug de série existe déjà.' : error.message }
@@ -185,7 +203,10 @@ export async function updateEpisode(id: string, patch: Partial<DbEpisode>) {
 }
 
 export async function submitSeries(id: string) {
-  return sb().from('series').update({ status: 'pending' }).eq('id', id)
+  await ensureSession()
+  const r = await sb().from('series').update({ status: 'pending' }).eq('id', id)
+  if (r.error) throw new Error(r.error.message)
+  return r
 }
 
 // ---- episodes ---------------------------------------------------------------
@@ -195,7 +216,10 @@ export async function listEpisodes(seriesId: string): Promise<DbEpisode[]> {
 }
 
 export async function addEpisode(p: Omit<DbEpisode, 'id'>) {
-  return sb().from('episodes').insert(p)
+  await ensureSession()
+  const r = await sb().from('episodes').insert(p)
+  if (r.error) throw new Error(r.error.message)
+  return r
 }
 
 export async function deleteEpisode(id: string) {
@@ -205,6 +229,7 @@ export async function deleteEpisode(id: string) {
 // ---- storage upload ---------------------------------------------------------
 /** Upload a file/blob under <creatorId>/<slug>/<name> and return its public URL. */
 export async function uploadToBucket(creatorId: string, slug: string, name: string, file: Blob): Promise<string> {
+  await ensureSession()
   const path = `${creatorId}/${slug}/${name}`
   const { error } = await sb().storage.from('episodes').upload(path, file, {
     upsert: true, contentType: file.type || 'application/octet-stream',
