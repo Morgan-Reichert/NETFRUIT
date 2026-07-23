@@ -19,6 +19,7 @@ export default function DetailModal({
 }) {
   const { state, like, dislike, toggleList } = useUser()
   const [shared, setShared] = useState(false)
+  const [seasonTab, setSeasonTab] = useState<number | null>(null)
 
   const share = async () => {
     if (!series) return
@@ -29,6 +30,8 @@ export default function DetailModal({
       else { await navigator.clipboard.writeText(url); setShared(true); setTimeout(() => setShared(false), 1800) }
     } catch { /* user cancelled */ }
   }
+
+  useEffect(() => { setSeasonTab(null) }, [series])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -167,44 +170,54 @@ export default function DetailModal({
               </div>
             </div>
 
-            {/* Episodes — grouped by season */}
+            {/* Episodes — season selector (tabs when multiple seasons) */}
             {(series.episodes?.length ?? 0) > 0 && (() => {
               const eps = series.episodes!
               const seasons = [...new Set(eps.map((e) => e.season ?? 1))].sort((a, b) => a - b)
+              const active = seasonTab ?? seasons[0]
+              const list = eps.filter((e) => (e.season ?? 1) === active)
               return (
                 <div className="px-6 pb-4 sm:px-8">
-                  {seasons.map((sn) => {
-                    const list = eps.filter((e) => (e.season ?? 1) === sn)
-                    return (
-                      <div key={sn} className="mb-5 last:mb-0">
-                        <h3 className="font-display text-lg font-bold text-cream">
-                          Episodes · Season {sn} <span className="text-cream/40">({list.length})</span>
-                        </h3>
-                        <div className="mt-3 divide-y divide-white/5 rounded-xl border border-white/5">
-                          {list.map((e) => (
-                            <button
-                              key={e.number}
-                              onClick={() => onPlay(series, e.number)}
-                              className="flex w-full items-center gap-4 p-3 text-left transition hover:bg-white/5"
-                            >
-                              <span className="w-5 text-center text-lg font-bold text-cream/40">{e.ep ?? e.number}</span>
-                              <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md">
-                                <Poster series={series} ratio="landscape" showTitle={false} />
-                                <span className="absolute inset-0 grid place-items-center bg-black/30 text-cream">
-                                  <PlayIcon size={18} />
-                                </span>
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-semibold text-cream">{e.title}</p>
-                                <p className="truncate text-xs text-cream/50">Season {sn} · Episode {e.ep ?? e.number} · AI-generated</p>
-                              </div>
-                              <span className="text-xs text-cream/50">{Math.max(1, Math.round(e.durationSec / 60))}m</span>
-                            </button>
-                          ))}
-                        </div>
+                  <div className="mb-3 flex items-center gap-3">
+                    <h3 className="font-display text-lg font-bold text-cream">Episodes</h3>
+                    {seasons.length > 1 ? (
+                      <div className="flex gap-1 rounded-full bg-white/5 p-1">
+                        {seasons.map((sn) => (
+                          <button
+                            key={sn}
+                            onClick={() => setSeasonTab(sn)}
+                            className={`rounded-full px-3 py-1 text-sm font-semibold transition ${active === sn ? 'bg-fruit-red-bright text-white' : 'text-cream/60 hover:text-cream'}`}
+                          >
+                            Saison {sn}
+                          </button>
+                        ))}
                       </div>
-                    )
-                  })}
+                    ) : (
+                      <span className="text-cream/40">Saison {active} · {list.length}</span>
+                    )}
+                  </div>
+                  <div className="divide-y divide-white/5 rounded-xl border border-white/5">
+                    {list.map((e) => (
+                      <button
+                        key={e.number}
+                        onClick={() => onPlay(series, e.number)}
+                        className="flex w-full items-center gap-4 p-3 text-left transition hover:bg-white/5"
+                      >
+                        <span className="w-5 text-center text-lg font-bold text-cream/40">{e.ep ?? e.number}</span>
+                        <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md">
+                          <Poster series={series} ratio="landscape" showTitle={false} />
+                          <span className="absolute inset-0 grid place-items-center bg-black/30 text-cream">
+                            <PlayIcon size={18} />
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-cream">{e.title}</p>
+                          <p className="truncate text-xs text-cream/50">Saison {active} · Épisode {e.ep ?? e.number} · AI-generated</p>
+                        </div>
+                        <span className="text-xs text-cream/50">{Math.max(1, Math.round(e.durationSec / 60))}m</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )
             })()}

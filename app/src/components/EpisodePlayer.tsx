@@ -49,6 +49,11 @@ interface Manifest {
   subtitles?: Partial<Record<Lang, Cue[]>>
 }
 
+const fmt = (s: number) => {
+  if (!isFinite(s) || s < 0) s = 0
+  const m = Math.floor(s / 60)
+  return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`
+}
 const capOf = (s: Shot, l: Lang) => s.captions?.[l] ?? s.caption ?? ''
 const voiceOf = (s: Shot, l: Lang) => s.voiceUrls?.[l] ?? s.voiceUrl ?? null
 
@@ -76,6 +81,7 @@ export default function EpisodePlayer({
   const [ep, setEp] = useState(startEp)
   const [music, setMusic] = useState(true)
   const [curTime, setCurTime] = useState(0)
+  const [dur, setDur] = useState(0)
   const [autoIn, setAutoIn] = useState<number | null>(null) // autoplay countdown seconds
 
   const { state, saveProgress } = useUser()
@@ -140,7 +146,7 @@ export default function EpisodePlayer({
 
   // Load the current episode's manifest — inline (DB-sourced) or fetched JSON.
   useEffect(() => {
-    setManifest(null); setI(0); setShown(0); setCurTime(0); setDone(false); setPaused(false)
+    setManifest(null); setI(0); setShown(0); setCurTime(0); setDur(0); setDone(false); setPaused(false)
     setAutoIn(null); resumedRef.current = false; lastSaveRef.current = 0
     if (!series) return
     if (inlineManifest) { setManifest(inlineManifest); return }
@@ -223,6 +229,15 @@ export default function EpisodePlayer({
 
   const restart = () => { setI(0); setShown(0); setDone(false); setPaused(false) }
 
+  const seekToRatio = (r: number) => {
+    const v = videoRef.current
+    if (!v || !dur) return
+    const t = Math.max(0, Math.min(dur - 0.1, r * dur))
+    v.currentTime = t
+    setCurTime(t)
+    if (done) setDone(false)
+  }
+
   const baked = !!manifest?.bakedAudio
   const shot = manifest?.shots[i]
   const visible = manifest?.shots[shown]
@@ -286,6 +301,8 @@ export default function EpisodePlayer({
                                 try { e.currentTarget.currentTime = rec.time! } catch { /* noop */ }
                               }
                               resumedRef.current = true
+                              e.currentTarget.playbackRate = speed
+                              setDur(e.currentTarget.duration || 0)
                               // Safety net keyed to the REAL file duration (never the manifest),
                               // in case 'ended' doesn't fire. Generous so it never pre-empts.
                               clearTimer()
@@ -374,14 +391,40 @@ export default function EpisodePlayer({
               </div>
             )}
 
-            {/* Segmented progress */}
-            <div className="safe-top absolute inset-x-0 top-0 flex gap-1 p-3">
-              {Array.from({ length: total }).map((_, k) => (
-                <div key={k} className="h-1 flex-1 overflow-hidden rounded-full bg-white/25">
-                  <div className="h-full bg-fruit-red-bright" style={{ width: k < i || done ? '100%' : k === i ? '100%' : '0%' }} />
+            {/* Progress — scrubbable for baked full-episode videos, segmented otherwise */}
+            {baked ? (
+              <div className="safe-top absolute inset-x-0 top-0 px-3 pt-3">
+                <div
+                  className="group relative h-4 cursor-pointer touch-none"
+                  onPointerDown={(e) => {
+                    e.currentTarget.setPointerCapture(e.pointerId)
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    seekToRatio((e.clientX - rect.left) / rect.width)
+                  }}
+                  onPointerMove={(e) => {
+                    if (e.buttons !== 1) return
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    seekToRatio((e.clientX - rect.left) / rect.width)
+                  }}
+                >
+                  <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 overflow-hidden rounded-full bg-white/25">
+                    <div className="h-full bg-fruit-red-bright" style={{ width: `${dur ? (curTime / dur) * 100 : 0}%` }} />
+                  </div>
+                  <div className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fruit-red-bright opacity-0 shadow transition group-hover:opacity-100" style={{ left: `${dur ? (curTime / dur) * 100 : 0}%` }} />
                 </div>
-              ))}
-            </div>
+                <div className="mt-0.5 flex justify-between text-[10px] tabular-nums text-cream/50">
+                  <span>{fmt(curTime)}</span><span>{fmt(dur)}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="safe-top absolute inset-x-0 top-0 flex gap-1 p-3">
+                {Array.from({ length: total }).map((_, k) => (
+                  <div key={k} className="h-1 flex-1 overflow-hidden rounded-full bg-white/25">
+                    <div className="h-full bg-fruit-red-bright" style={{ width: k < i || done ? '100%' : k === i ? '100%' : '0%' }} />
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Settings popover */}
             <AnimatePresence>
