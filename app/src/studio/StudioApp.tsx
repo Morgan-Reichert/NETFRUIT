@@ -147,7 +147,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 function Brand({ small }: { small?: boolean }) {
   return (
     <span className={`font-display font-extrabold tracking-tight ${small ? 'text-lg' : 'text-3xl'}`}>
-      <span className="text-fruit-red-bright">NET</span>FRUIT <span className="font-semibold text-cream/60">Studio</span>
+      <span className="text-brand-gradient">NETFRUIT</span> <span className="font-semibold text-cream/60">Studio</span>
     </span>
   )
 }

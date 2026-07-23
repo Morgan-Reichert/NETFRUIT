@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0c060a",
-  "theme_color": "#0c060a",
+  "background_color": "#051413",
+  "theme_color": "#051413",
   "categories": ["entertainment", "video"],
   "icons": [
     { "src": "/icons/favicon-32.png", "sizes": "32x32", "type": "image/png" },

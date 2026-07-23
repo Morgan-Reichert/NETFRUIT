@@ -39,7 +39,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
           </pre>
           <button
             onClick={() => this.hardReset()}
-            style={{ marginTop: 18, background: '#ff2740', color: '#fff', border: 0, borderRadius: 999, padding: '12px 28px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+            style={{ marginTop: 18, background: '#16b8ad', color: '#04211f', border: 0, borderRadius: 999, padding: '12px 28px', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
           >
             Reload NETFRUIT
           </button>

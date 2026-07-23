@@ -5,24 +5,29 @@
   --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
 
-  /* Berry-tinted dark cinematic base */
-  --color-ink-950: #0c060a;
-  --color-ink-900: #14090f;
-  --color-ink-800: #1e0d15;
-  --color-ink-700: #2a121d;
+  /* Cool teal-tinted dark cinematic base (matches the blue→green brand logo) */
+  --color-ink-950: #051413;
+  --color-ink-900: #0a1f1e;
+  --color-ink-800: #0f2a28;
+  --color-ink-700: #163634;
 
-  /* NETFRUIT signature deep red */
-  --color-fruit-red: #c31026;
-  --color-fruit-red-bright: #ff2740;
+  /* NETFRUIT brand — blue → teal → green gradient (see logo V2).
+     `fruit-red*` names kept for compatibility; they are now the brand teal
+     used as the primary accent across the UI. */
+  --color-brand-blue: #0a6fb0;
+  --color-brand-teal: #10a1a0;
+  --color-brand-green: #14a866;
+  --color-fruit-red: #0c8a84;
+  --color-fruit-red-bright: #16b8ad;
 
-  /* Fruit accent palette */
+  /* Fruit accent palette (per-series themes + logo fruits) */
   --color-strawberry: #e8384f;
-  --color-raspberry: #d61a5c;
-  --color-grape: #8b4a9c;
-  --color-blueberry: #4457c4;
-  --color-orange: #ff8a2a;
+  --color-raspberry: #e04a6a;
+  --color-grape: #9455a8;
+  --color-blueberry: #41518c;
+  --color-orange: #f4a72e;
   --color-lime: #a7cf4a;
-  --color-cream: #fdf3ec;
+  --color-cream: #f7f3e8;
 }
 
 @layer base {
@@ -80,6 +85,16 @@
   }
   .text-shadow-cinema {
     text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+  /* NETFRUIT brand gradient (blue → teal → green), matching the logo. */
+  .bg-brand-gradient {
+    background-image: linear-gradient(135deg, var(--color-brand-blue) 0%, var(--color-brand-teal) 52%, var(--color-brand-green) 100%);
+  }
+  .text-brand-gradient {
+    background-image: linear-gradient(120deg, var(--color-brand-blue), var(--color-brand-teal) 55%, var(--color-brand-green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   .mask-fade-r {
     -webkit-mask-image: linear-gradient(to right, #000 82%, transparent 100%);
