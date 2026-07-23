@@ -250,6 +250,24 @@ export default function EpisodePlayer({
       : ''
   const filter = QUALITY_FILTER[quality]
 
+  // Reflect the paused state on the real baked <video>, and freeze/restore the
+  // auto-advance safety timer so pausing actually stops playback.
+  useEffect(() => {
+    const v = videoRef.current
+    if (!baked || !v) return
+    if (paused) {
+      v.pause()
+      clearTimer()
+    } else {
+      v.play().catch(() => {})
+      if (!timerRef.current && v.duration) {
+        const remaining = v.duration - v.currentTime
+        timerRef.current = window.setTimeout(() => next(), ((remaining + 4) / speed) * 1000)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paused, baked, shown, speed])
+
   return (
     <AnimatePresence>
       {series && (
