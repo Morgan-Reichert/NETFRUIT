@@ -1,5 +1,5 @@
 // NETFRUIT service worker — PWA install, safe caching, Web Push.
-const CACHE = 'netfruit-v4'
+const CACHE = 'netfruit-v5'
 
 self.addEventListener('install', (e) => {
   // Cache only the icons for installability. NOT the HTML/JS shell — caching a
@@ -43,13 +43,18 @@ self.addEventListener('fetch', (e) => {
     return
   }
 
+  // Range requests (media streaming) return 206 partials that the Cache API
+  // can't store — pass them straight through, never cache.
+  if (request.headers.has('range')) { e.respondWith(fetch(request)); return }
+
   // Hashed static assets are immutable → cache-first, then network.
   e.respondWith(
     caches.match(request).then(
       (hit) =>
         hit ||
         fetch(request).then((res) => {
-          if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(request, copy)) }
+          // Only cache full 200 responses (a 206 partial throws on Cache.put).
+          if (res.status === 200) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(request, copy)) }
           return res
         }),
     ),
