@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import {
   addEpisode, createSeries, deleteEpisode, listEpisodes, readVideoDuration,
-  slugify, submitSeries, uploadToBucket,
+  slugify, submitSeries, updateEpisode, uploadToBucket,
   type Creator, type DbEpisode, type DbSeries, type Monetization,
 } from '../lib/creator'
 import { supabase } from '../lib/supabase'
+import SeriesMeta from './SeriesMeta'
+import CreditsMovie from './CreditsMovie'
 
 const FRUITS = ['strawberry', 'banana', 'grape', 'orange', 'lemon', 'kiwi', 'mango', 'cherry', 'peach', 'watermelon', 'pineapple', 'apple', 'dragonfruit', 'raspberry', 'lime', 'pear']
 
@@ -15,6 +17,7 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
   const [episodes, setEpisodes] = useState<DbEpisode[]>([])
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [showCredits, setShowCredits] = useState(false)
 
   // form fields (for a NEW series)
   const [title, setTitle] = useState('')
@@ -81,6 +84,16 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
     if (series) setEpisodes(await listEpisodes(series.id))
   }
 
+  const onEpisodeBanner = async (e: DbEpisode, file: File) => {
+    if (!series) return
+    setBusy(true); setMsg('Upload bannière…')
+    try {
+      const url = await uploadToBucket(creator.id, series.slug, `e${e.number}-banner.${(file.name.split('.').pop() || 'jpg').toLowerCase()}`, file)
+      await updateEpisode(e.id, { cover_url: url })
+      setEpisodes(await listEpisodes(series.id)); setMsg('Bannière ajoutée ✓')
+    } catch (err) { setMsg((err as Error).message) } finally { setBusy(false) }
+  }
+
   const submit = async () => {
     if (!series) return
     if (episodes.length === 0) { setMsg('Ajoute au moins un épisode avant de soumettre.'); return }
@@ -145,14 +158,24 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
           </div>
 
           <div>
-            <h2 className="mb-2 font-semibold">Épisodes ({episodes.length})</h2>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="font-semibold">Épisodes ({episodes.length})</h2>
+              <button onClick={() => setShowCredits(true)} className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-bold text-cream hover:border-white/50">🎬 Générer un générique</button>
+            </div>
             {episodes.length > 0 && (
               <ul className="mb-3 divide-y divide-white/5 rounded-xl border border-white/10">
                 {episodes.map((e) => (
                   <li key={e.id} className="flex items-center gap-3 p-3">
                     <span className="w-5 text-center font-bold text-cream/40">{e.number}</span>
+                    <div className="h-10 w-16 shrink-0 overflow-hidden rounded bg-white/5">
+                      {e.cover_url && <img src={e.cover_url} alt="" className="h-full w-full object-cover" />}
+                    </div>
                     <span className="flex-1 truncate">{e.title}</span>
                     <span className="text-xs text-cream/40">{e.duration_sec}s</span>
+                    <label className="cursor-pointer text-xs text-cream/60 hover:text-cream">
+                      Bannière
+                      <input type="file" accept="image/*" className="hidden" onChange={(ev) => ev.target.files?.[0] && onEpisodeBanner(e, ev.target.files[0])} />
+                    </label>
                     <button onClick={() => onDeleteEpisode(e.id)} className="text-xs text-fruit-red-bright hover:underline">Suppr.</button>
                   </li>
                 ))}
@@ -160,6 +183,8 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
             )}
             <AddEpisode busy={busy} onAdd={onAddEpisode} nextNum={(episodes.at(-1)?.number ?? 0) + 1} />
           </div>
+
+          <SeriesMeta series={series} onSaved={setSeries} />
 
           {msg && <p className="text-sm text-cream/70">{msg}</p>}
 
@@ -172,6 +197,14 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
             <p className="rounded-lg bg-white/5 px-4 py-3 text-sm text-cream/70">
               {series.status === 'pending' ? '⏳ En attente de modération.' : '✅ Publiée et en ligne.'}
             </p>
+          )}
+
+          {showCredits && (
+            <CreditsMovie
+              creator={creator} series={series}
+              onClose={() => setShowCredits(false)}
+              onAdded={async () => { setEpisodes(await listEpisodes(series.id)) }}
+            />
           )}
         </div>
       )}

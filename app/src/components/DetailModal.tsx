@@ -7,6 +7,11 @@ import { isLocked, useWallet } from '../lib/wallet'
 import Poster from './Poster'
 import { CheckIcon, CloseIcon, PlayIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from './icons'
 
+const FLAG_LABEL: Record<string, string> = {
+  sex: 'Sexe', violence: 'Violence', profanity: 'Insultes', gore: 'Gore',
+  drugs: 'Drogue', horror: 'Horreur', discrimination: 'Discrimination',
+}
+
 export default function DetailModal({
   series,
   onClose,
@@ -203,6 +208,33 @@ export default function DetailModal({
                       {series.creatorName ?? series.producedBy}
                     </a>
                   </p>
+                )}
+                {series.ageRating && series.ageRating !== 'all' && (
+                  <p>
+                    <span className="text-cream/50">Âge : </span>
+                    <span className="rounded bg-fruit-red-bright/20 px-1.5 py-0.5 font-bold text-fruit-red-bright">{series.ageRating}+</span>
+                  </p>
+                )}
+                {!!series.contentFlags?.length && (
+                  <p className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-cream/50">Contenu : </span>
+                    {series.contentFlags.map((f) => (
+                      <span key={f} className="rounded bg-white/10 px-1.5 py-0.5 text-xs text-cream/80">{FLAG_LABEL[f] ?? f}</span>
+                    ))}
+                  </p>
+                )}
+                {!!series.aiTools?.length && (
+                  <p><span className="text-cream/50">IA : </span><span className="text-cream/90">{series.aiTools.join(' · ')}</span></p>
+                )}
+                {!!series.credits?.length && (
+                  <div>
+                    <p className="text-cream/50">Crédits :</p>
+                    <ul className="mt-1 space-y-0.5">
+                      {series.credits.map((c, i) => (
+                        <li key={i} className="text-cream/85"><span className="text-cream/50">{c.role}</span> {c.name}</li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
             </div>

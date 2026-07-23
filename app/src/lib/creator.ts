@@ -66,7 +66,22 @@ export interface DbSeries {
   in_premium: boolean
   status: SeriesStatus
   created_at: string
+  age_rating?: string
+  content_flags?: string[]
+  credits?: { role: string; name: string }[] | null
+  ai_tools?: string[]
+  season_covers?: Record<string, string> | null
 }
+
+export const AGE_RATINGS = [
+  { v: 'all', label: 'Tous publics' }, { v: '10', label: '10+' }, { v: '12', label: '12+' },
+  { v: '16', label: '16+' }, { v: '18', label: '18+' },
+]
+export const CONTENT_FLAGS = [
+  { v: 'sex', label: 'Sexe' }, { v: 'violence', label: 'Violence' }, { v: 'profanity', label: 'Insultes' },
+  { v: 'gore', label: 'Gore' }, { v: 'drugs', label: 'Drogue' }, { v: 'horror', label: 'Horreur' },
+  { v: 'discrimination', label: 'Discrimination' },
+]
 
 export interface DbEpisode {
   id: string
@@ -80,6 +95,7 @@ export interface DbEpisode {
   subtitles: unknown
   baked_audio: boolean
   token_cost: number
+  cover_url?: string | null
 }
 
 const sb = () => {
@@ -159,6 +175,10 @@ export async function updateSeries(id: string, patch: Partial<DbSeries>) {
   return sb().from('series').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id)
 }
 
+export async function updateEpisode(id: string, patch: Partial<DbEpisode>) {
+  return sb().from('episodes').update(patch).eq('id', id)
+}
+
 export async function submitSeries(id: string) {
   return sb().from('series').update({ status: 'pending' }).eq('id', id)
 }
@@ -178,8 +198,8 @@ export async function deleteEpisode(id: string) {
 }
 
 // ---- storage upload ---------------------------------------------------------
-/** Upload a file under <creatorId>/<slug>/<name> and return its public URL. */
-export async function uploadToBucket(creatorId: string, slug: string, name: string, file: File): Promise<string> {
+/** Upload a file/blob under <creatorId>/<slug>/<name> and return its public URL. */
+export async function uploadToBucket(creatorId: string, slug: string, name: string, file: Blob): Promise<string> {
   const path = `${creatorId}/${slug}/${name}`
   const { error } = await sb().storage.from('episodes').upload(path, file, {
     upsert: true, contentType: file.type || 'application/octet-stream',

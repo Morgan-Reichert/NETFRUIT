@@ -58,6 +58,10 @@ function fromDbRow(r: Record<string, any>): Series {
     producedBy: r.creator?.display_name ?? 'NETFRUIT',
     creatorHandle: r.creator?.handle,
     creatorName: r.creator?.display_name,
+    ageRating: r.age_rating,
+    contentFlags: r.content_flags ?? [],
+    credits: r.credits ?? [],
+    aiTools: r.ai_tools ?? [],
   } as Series
 }
 

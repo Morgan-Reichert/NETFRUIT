@@ -84,6 +84,10 @@ export interface Series {
   /** Creator handle/name (Supabase-sourced) — links to the public creator page. */
   creatorHandle?: string
   creatorName?: string
+  ageRating?: string
+  contentFlags?: string[]
+  credits?: { role: string; name: string }[]
+  aiTools?: string[]
   episodes?: {
     number: number
     title: string
