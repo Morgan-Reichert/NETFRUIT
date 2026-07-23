@@ -9,6 +9,10 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
   const [legalName, setLegalName] = useState('')
   const [birthDate, setBirthDate] = useState('')
   const [country, setCountry] = useState('')
+  // parental authorization (required for 14–17)
+  const [parentName, setParentName] = useState('')
+  const [parentEmail, setParentEmail] = useState('')
+  const [parentalConsent, setParentalConsent] = useState(false)
   // proofs
   const [tiktok, setTiktok] = useState('')
   const [instagram, setInstagram] = useState('')
@@ -33,10 +37,14 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
     if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) a--
     return a
   }
-  const adult = ageOf(birthDate) >= 18
+  const age = ageOf(birthDate)
+  const tooYoung = !!birthDate && age > 0 && age < 14
+  const isMinor = age >= 14 && age < 18
+  // Minors (14–17) need a parent/guardian's authorization to proceed.
+  const parentalOk = !isMinor || (parentName.trim() && /.+@.+\..+/.test(parentEmail) && parentalConsent)
   const hasProof = !!(tiktok.trim() || instagram.trim() || youtube.trim() || portfolio.trim())
   const canSubmit =
-    displayName.trim() && handle.trim() && legalName.trim() && adult &&
+    displayName.trim() && handle.trim() && legalName.trim() && !!birthDate && age >= 14 && parentalOk &&
     experience.trim().length >= 20 && rights.trim().length >= 15 &&
     hasProof && agreeRights && agreeRules && agreePolicy && agreeReview && !busy
 
@@ -51,7 +59,10 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
       },
       portfolio_url: portfolio.trim() || undefined,
       experience: experience.trim(),
-      answers: { tools: tools.trim(), rights_practice: rights.trim() },
+      answers: {
+        tools: tools.trim(), rights_practice: rights.trim(),
+        ...(isMinor ? { parent_name: parentName.trim(), parent_email: parentEmail.trim(), parental_consent: 'oui' } : {}),
+      },
     })
     setBusy(false)
     if (r.error) { setError(r.error); return }
@@ -87,12 +98,30 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
         <div className="grid grid-cols-2 gap-3">
           <Field label="Date de naissance *">
             <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className={inp} />
-            {birthDate && !adult && <p className="mt-1 text-xs text-fruit-red-bright">Tu dois avoir au moins 18 ans.</p>}
+            {tooYoung && <p className="mt-1 text-xs text-fruit-red-bright">Tu dois avoir au moins 14 ans.</p>}
+            {isMinor && <p className="mt-1 text-xs text-amber-300">Mineur·e : une autorisation parentale est requise (ci-dessous).</p>}
           </Field>
           <Field label="Pays de résidence">
             <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="France" className={inp} />
           </Field>
         </div>
+
+        {isMinor && (
+          <div className="space-y-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4">
+            <p className="text-sm font-semibold text-amber-200">👪 Autorisation parentale (obligatoire pour les 14–17 ans)</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Nom du parent / tuteur *">
+                <input value={parentName} onChange={(e) => setParentName(e.target.value)} className={inp} />
+              </Field>
+              <Field label="Email du parent / tuteur *">
+                <input type="email" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} placeholder="parent@email.com" className={inp} />
+              </Field>
+            </div>
+            <Check checked={parentalConsent} onChange={setParentalConsent}>
+              Un parent / tuteur légal autorise cette candidature et accepte les conditions en mon nom.
+            </Check>
+          </div>
+        )}
       </Section>
 
       {/* 2. Preuves de savoir-faire */}
