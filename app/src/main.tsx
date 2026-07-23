@@ -8,6 +8,7 @@ import { ProfilesProvider, useProfiles } from './lib/profiles'
 import { useProfilesSync } from './lib/sync'
 import ProfileGate from './components/ProfileGate'
 import ErrorBoundary from './components/ErrorBoundary'
+import StudioApp from './studio/StudioApp'
 
 function Shell() {
   const { activeId } = useProfiles()
@@ -20,13 +21,21 @@ function Shell() {
   )
 }
 
+// Creator Studio lives at /studio (same app, shared auth — later mapped to
+// creator.netfruit.fun). It needs auth but NOT a viewer "who's watching" profile.
+const isStudio = typeof window !== 'undefined' && window.location.pathname.startsWith('/studio')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
       <AuthProvider>
-        <ProfilesProvider>
-          <Shell />
-        </ProfilesProvider>
+        {isStudio ? (
+          <StudioApp />
+        ) : (
+          <ProfilesProvider>
+            <Shell />
+          </ProfilesProvider>
+        )}
       </AuthProvider>
     </ErrorBoundary>
   </StrictMode>,

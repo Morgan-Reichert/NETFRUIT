@@ -3,5 +3,9 @@
   "installCommand": "npm --prefix app install",
   "buildCommand": "npm --prefix app run build",
   "outputDirectory": "app/dist",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    { "source": "/studio", "destination": "/index.html" },
+    { "source": "/studio/:path*", "destination": "/index.html" }
+  ]
 }
