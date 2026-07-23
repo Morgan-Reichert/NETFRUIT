@@ -158,6 +158,8 @@ export function buildFeed(state: UserState): FeedRow[] {
 
   // Real (AI-generated) catalog present → focused, non-redundant feed over it.
   if (pool.some((s) => s.generated)) {
+    const promoted = pool.filter((s) => s.promoted && !state.disliked[s.id])
+    if (promoted.length) rows.push({ key: 'promoted', title: 'Sponsorisé', ids: promoted.map((s) => s.id) })
     rows.push({ key: 'originals', title: 'NETFRUIT Originals', ids: ranked.map((s) => s.id), kind: 'toppicks' })
     const fresh = pool.filter((s) => s.newBadge)
     if (fresh.length) rows.push({ key: 'fresh', title: 'New This Week', ids: fresh.map((s) => s.id) })

@@ -130,3 +130,47 @@ export const MusicIcon = (p: P) => (
 export const GaugeIcon = (p: P) => (
   <svg {...base(p)}><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /><path d="m14 11 4-3" /><path d="M4 18a9 9 0 1 1 16 0" /></svg>
 )
+
+// --- extra icons (replace emoji across the app) ---
+export const CoinIcon = (p: P) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="8" /><path d="M9.5 9.5a2.5 2.5 0 0 1 5 0M9.5 14.5a2.5 2.5 0 0 0 5 0M12 7v1M12 16v1" /></svg>
+)
+export const GemIcon = (p: P) => (
+  <svg {...base(p)}><path d="M6 3h12l3 6-9 12L3 9z" /><path d="M3 9h18M9 3l3 6 3-6M12 9l0 12" /></svg>
+)
+export const ChartIcon = (p: P) => (
+  <svg {...base(p)}><path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6" /></svg>
+)
+export const HourglassIcon = (p: P) => (
+  <svg {...base(p)}><path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9" /></svg>
+)
+export const UsersIcon = (p: P) => (
+  <svg {...base(p)}><circle cx="9" cy="8" r="3" /><path d="M4 20a5 5 0 0 1 10 0M16 6a3 3 0 0 1 0 6M20 20a5 5 0 0 0-3-4.6" /></svg>
+)
+export const MegaphoneIcon = (p: P) => (
+  <svg {...base(p)}><path d="M3 11v2a1 1 0 0 0 1 1h2l9 5V5L6 10H4a1 1 0 0 0-1 1zM18 8a4 4 0 0 1 0 8" /></svg>
+)
+export const StarIcon = (p: P) => (
+  <svg {...base(p)}><path d="M12 3l2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8L6.6 19.6l1-6L3.3 9.4l6-.9z" /></svg>
+)
+export const SparkIcon = (p: P) => (
+  <svg {...base(p)}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18" /></svg>
+)
+export const FireIcon = (p: P) => (
+  <svg {...base(p)}><path d="M12 3s5 4 5 9a5 5 0 0 1-10 0c0-2 1-3 1-3s0 2 2 2c1.5 0 1-3-1-5 2 0 3 1 3 0z" /></svg>
+)
+export const CardIcon = (p: P) => (
+  <svg {...base(p)}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 10h18" /></svg>
+)
+export const FrownIcon = (p: P) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M8 15c1-1.5 2.3-2 4-2s3 .5 4 2M9 9h.01M15 9h.01" /></svg>
+)
+export const EditIcon = (p: P) => (
+  <svg {...base(p)}><path d="M4 20h4L18 10l-4-4L4 16zM13 5l4 4" /></svg>
+)
+export const TrashIcon = (p: P) => (
+  <svg {...base(p)}><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" /></svg>
+)
+export const TvIcon = (p: P) => (
+  <svg {...base(p)}><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M8 21h8M12 6 8 3M12 6l4-3" /></svg>
+)

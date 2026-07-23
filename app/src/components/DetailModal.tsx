@@ -5,7 +5,7 @@ import { similarTo } from '../lib/recommend'
 import { useUser } from '../lib/store'
 import { isLocked, useWallet } from '../lib/wallet'
 import Poster from './Poster'
-import { CheckIcon, CloseIcon, PlayIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from './icons'
+import { CheckIcon, CloseIcon, CoinIcon, GemIcon, PlayIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from './icons'
 
 const FLAG_LABEL: Record<string, string> = {
   sex: 'Sexe', violence: 'Violence', profanity: 'Insultes', gore: 'Gore',
@@ -117,10 +117,11 @@ export default function DetailModal({
                       disabled={unlocking}
                       className="flex items-center gap-2 rounded-full bg-brand-gradient px-6 py-2.5 font-bold text-white transition hover:brightness-110 disabled:opacity-60"
                     >
-                      {unlocking ? 'Déblocage…'
-                        : series.monetization === 'subscription'
-                          ? '💎 Débloquer avec Premium'
-                          : `🪙 Débloquer · ${series.episodeTokenCost ?? 0} jetons`}
+                      {unlocking ? 'Déblocage…' : series.monetization === 'subscription' ? (
+                        <><GemIcon size={18} /> Débloquer avec Premium</>
+                      ) : (
+                        <><CoinIcon size={18} /> Débloquer · {series.episodeTokenCost ?? 0} jetons</>
+                      )}
                     </button>
                   ) : (
                     <button

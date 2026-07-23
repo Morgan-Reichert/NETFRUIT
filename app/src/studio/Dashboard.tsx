@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { topEpisodes, type Creator, type DbSeries } from '../lib/creator'
+import { ChartIcon, FireIcon } from '../components/icons'
 
 export default function Dashboard({ creator, series, onNew }: {
   creator: Creator; series: DbSeries[]; onNew: () => void
@@ -13,7 +14,7 @@ export default function Dashboard({ creator, series, onNew }: {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-extrabold">Bonjour, {creator.display_name} 👋</h1>
+        <h1 className="font-display text-2xl font-extrabold">Bonjour, {creator.display_name}</h1>
         <p className="text-cream/60">Voici l'état de ton studio.</p>
       </div>
 
@@ -29,7 +30,7 @@ export default function Dashboard({ creator, series, onNew }: {
       </button>
 
       <div>
-        <h2 className="mb-3 font-display text-lg font-bold">🔥 Ce qui marche sur la plateforme</h2>
+        <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold"><FireIcon size={18} className="text-fruit-red-bright" /> Ce qui marche sur la plateforme</h2>
         {top.length === 0 ? (
           <p className="rounded-xl border border-dashed border-white/15 p-6 text-center text-sm text-cream/40">
             Pas encore de statistiques de visionnage. Les vues apparaîtront ici dès que les séries seront regardées.
@@ -51,7 +52,7 @@ export default function Dashboard({ creator, series, onNew }: {
       </div>
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-sm font-semibold text-cream/80">📊 Analytics avancées (Créateur Pro)</p>
+        <p className="flex items-center gap-2 text-sm font-semibold text-cream/80"><ChartIcon size={16} /> Analytics avancées (Créateur Pro)</p>
         <p className="mt-1 text-sm text-cream/50">Rétention par seconde, sources de trafic, revenus détaillés, comparaison de séries… disponibles avec l'abonnement Créateur Pro (bientôt).</p>
       </div>
     </div>

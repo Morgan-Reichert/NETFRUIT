@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { applyAsCreator, slugify } from '../lib/creator'
+import { UsersIcon } from '../components/icons'
 
 export default function Onboarding({ userId, onDone }: { userId: string; onDone: () => void }) {
   const [displayName, setDisplayName] = useState('')
@@ -108,7 +109,7 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
 
         {isMinor && (
           <div className="space-y-3 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4">
-            <p className="text-sm font-semibold text-amber-200">👪 Autorisation parentale (obligatoire pour les 14–17 ans)</p>
+            <p className="flex items-center gap-2 text-sm font-semibold text-amber-200"><UsersIcon size={16} /> Autorisation parentale (obligatoire pour les 14–17 ans)</p>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Nom du parent / tuteur *">
                 <input value={parentName} onChange={(e) => setParentName(e.target.value)} className={inp} />

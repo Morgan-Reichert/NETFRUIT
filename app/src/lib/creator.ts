@@ -166,6 +166,11 @@ export async function createSeries(creatorId: string, p: {
   return { series: data as DbSeries }
 }
 
+export async function promoteSeries(seriesDbId: string, days: number, tokens: number): Promise<string> {
+  const { data, error } = await sb().rpc('promote_series', { sid: seriesDbId, days, tokens })
+  return error ? 'ERROR' : (data as string)
+}
+
 export async function listPayouts(creatorId: string): Promise<Payout[]> {
   const { data } = await sb().from('payouts').select('*').eq('creator_id', creatorId).order('period', { ascending: false })
   return (data as Payout[]) ?? []

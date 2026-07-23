@@ -74,7 +74,15 @@ async function loadFromSupabase(): Promise<Series[]> {
       .select('*, creator:creators(handle,display_name,avatar_url), episodes(*)')
       .eq('status', 'published')
     if (error || !Array.isArray(data)) return []
-    return data.map(fromDbRow)
+    const mapped = data.map(fromDbRow)
+    // Mark actively-promoted series (for the Sponsorisé badge + row).
+    try {
+      const { data: promos } = await supabase
+        .from('promotions').select('series_id').gt('expires_at', new Date().toISOString())
+      const set = new Set((promos ?? []).map((p: { series_id: string }) => p.series_id))
+      mapped.forEach((s) => { if (s.dbId && set.has(s.dbId)) s.promoted = true })
+    } catch { /* promotions table not present yet */ }
+    return mapped
   } catch {
     return []
   }

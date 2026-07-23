@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { addEpisode, listEpisodes, uploadToBucket, type Creator, type DbEpisode, type DbSeries } from '../lib/creator'
+import { CloseIcon } from '../components/icons'
 
 // Reuse the app's mood soundtracks as selectable background music.
 const TRACKS = [
@@ -125,7 +126,7 @@ export default function CreditsMovie({ creator, series, onClose, onAdded }: {
       <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-ink-900 p-5 text-cream" onClick={(e) => e.stopPropagation()}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-display text-lg font-bold">Générer le générique de fin</h3>
-          <button onClick={onClose} className="text-cream/50 hover:text-cream">✕</button>
+          <button onClick={onClose} className="text-cream/50 hover:text-cream"><CloseIcon size={18} /></button>
         </div>
         <p className="mb-4 text-sm text-cream/60">Un générique façon film (crédits + IA qui défilent) sur une musique, ajouté comme dernier épisode de la série.</p>
 

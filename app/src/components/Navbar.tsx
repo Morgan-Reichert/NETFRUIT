@@ -4,6 +4,7 @@ import { useAuth } from '../lib/auth'
 import { avatarUrl, useProfiles } from '../lib/profiles'
 import { enablePush, isPushEnabled, pushBlockedReason, pushSupported } from '../lib/push'
 import { useWallet } from '../lib/wallet'
+import { CoinIcon, GemIcon } from './icons'
 
 const LINKS = ['Home', 'Series', 'New & Ripe', 'My Basket', 'Categories']
 
@@ -96,7 +97,7 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
           {/* Token balance (signed-in) */}
           {user && (
             <span className="hidden items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-sm font-bold text-cream sm:inline-flex" title="Solde de jetons">
-              🪙 {balance}
+              <CoinIcon size={15} className="text-fruit-red-bright" /> {balance}
             </span>
           )}
 
@@ -151,14 +152,14 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
                   {user && (
                     <>
                       <div className="flex w-full items-center justify-between px-4 py-2.5 text-sm text-cream/80">
-                        <span>🪙 {balance} jetons</span>
+                        <span className="inline-flex items-center gap-1.5"><CoinIcon size={16} className="text-fruit-red-bright" /> {balance} jetons</span>
                         <button onClick={() => addTokens(100)} className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-bold hover:bg-white/20">+100</button>
                       </div>
                       <button
                         onClick={() => setPremium(!isPremium)}
                         className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
                       >
-                        <span>💎 Premium</span>
+                        <span className="inline-flex items-center gap-1.5"><GemIcon size={16} className="text-fruit-red-bright" /> Premium</span>
                         <span className={isPremium ? 'text-lime' : 'text-cream/40'}>{isPremium ? 'Actif' : 'Activer'}</span>
                       </button>
                     </>

@@ -88,6 +88,7 @@ export interface Series {
   contentFlags?: string[]
   credits?: { role: string; name: string }[]
   aiTools?: string[]
+  promoted?: boolean
   episodes?: {
     number: number
     title: string

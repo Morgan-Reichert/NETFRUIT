@@ -7,6 +7,7 @@ import {
 import { supabase } from '../lib/supabase'
 import SeriesMeta from './SeriesMeta'
 import CreditsMovie from './CreditsMovie'
+import { CheckIcon, CoinIcon, FilmIcon, HourglassIcon } from '../components/icons'
 
 const FRUITS = ['strawberry', 'banana', 'grape', 'orange', 'lemon', 'kiwi', 'mango', 'cherry', 'peach', 'watermelon', 'pineapple', 'apple', 'dragonfruit', 'raspberry', 'lime', 'pear']
 
@@ -133,7 +134,7 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
                 <div className="flex items-center gap-2 pl-6">
                   <span className="text-sm text-cream/60">Coût par épisode :</span>
                   <input value={tokenCost} onChange={(e) => setTokenCost(e.target.value)} inputMode="numeric" className="w-20 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5" />
-                  <span className="text-cream/50">🪙 jetons</span>
+                  <span className="inline-flex items-center gap-1 text-cream/50"><CoinIcon size={15} /> jetons</span>
                 </div>
               )}
             </div>
@@ -160,7 +161,7 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
           <div>
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-semibold">Épisodes ({episodes.length})</h2>
-              <button onClick={() => setShowCredits(true)} className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-bold text-cream hover:border-white/50">🎬 Générer un générique</button>
+              <button onClick={() => setShowCredits(true)} className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-xs font-bold text-cream hover:border-white/50"><FilmIcon size={14} /> Générer un générique</button>
             </div>
             {episodes.length > 0 && (
               <ul className="mb-3 divide-y divide-white/5 rounded-xl border border-white/10">
@@ -194,8 +195,10 @@ export default function SeriesEditor({ creator, seriesId, onBack }: {
               Soumettre à la modération
             </button>
           ) : (
-            <p className="rounded-lg bg-white/5 px-4 py-3 text-sm text-cream/70">
-              {series.status === 'pending' ? '⏳ En attente de modération.' : '✅ Publiée et en ligne.'}
+            <p className="flex items-center gap-2 rounded-lg bg-white/5 px-4 py-3 text-sm text-cream/70">
+              {series.status === 'pending'
+                ? (<><HourglassIcon size={16} /> En attente de modération.</>)
+                : (<><CheckIcon size={16} className="text-lime" /> Publiée et en ligne.</>)}
             </p>
           )}
 

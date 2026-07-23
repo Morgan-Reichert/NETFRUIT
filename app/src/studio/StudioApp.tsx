@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/auth'
 import AuthModal from '../components/AuthModal'
+import { FrownIcon, HourglassIcon, MegaphoneIcon } from '../components/icons'
 import {
-  amIAdmin, getMyCreator, isApprovedCreator, listMySeries, type Creator, type DbSeries,
+  amIAdmin, getMyCreator, isApprovedCreator, listMySeries, promoteSeries, type Creator, type DbSeries,
 } from '../lib/creator'
 import Onboarding from './Onboarding'
 import SeriesEditor from './SeriesEditor'
@@ -30,6 +31,7 @@ export default function StudioApp() {
   const [authOpen, setAuthOpen] = useState(false)
   const [view, setView] = useState<View>({ name: 'dashboard' })
   const [series, setSeries] = useState<DbSeries[]>([])
+  const [promoteForS, setPromoteFor] = useState<DbSeries | null>(null)
 
   const refreshCreator = async () => {
     if (!user) { setCreator(null); setLoading(false); return }
@@ -104,17 +106,22 @@ export default function StudioApp() {
             ) : (
               <ul className="divide-y divide-white/5 rounded-xl border border-white/10">
                 {series.map((s) => (
-                  <li key={s.id}>
-                    <button onClick={() => setView({ name: 'editor', id: s.id })} className="flex w-full items-center gap-4 p-3 text-left hover:bg-white/5">
+                  <li key={s.id} className="flex items-center gap-3 p-3 hover:bg-white/5">
+                    <button onClick={() => setView({ name: 'editor', id: s.id })} className="flex flex-1 items-center gap-4 text-left">
                       <div className="h-14 w-24 shrink-0 overflow-hidden rounded-md bg-white/5">
                         {s.poster_url && <img src={s.poster_url} alt="" className="h-full w-full object-cover" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold">{s.title}</p>
-                        <p className="truncate text-xs text-cream/50">{s.monetization === 'purchase' ? `Vente · ${((s.price_cents ?? 0) / 100).toFixed(2)}€` : s.monetization === 'subscription' ? 'Abonnement NETFRUIT' : 'Gratuit'}</p>
+                        <p className="truncate text-xs text-cream/50">{s.monetization === 'purchase' ? 'Jetons' : s.monetization === 'subscription' ? 'Premium' : 'Gratuit'}</p>
                       </div>
                       <span className={`rounded px-2 py-0.5 text-[11px] font-bold ${STATUS_STYLE[s.status]}`}>{STATUS_LABEL[s.status]}</span>
                     </button>
+                    {s.status === 'published' && (
+                      <button onClick={() => setPromoteFor(s)} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-xs font-bold text-cream hover:border-white/50">
+                        <MegaphoneIcon size={14} /> Promouvoir
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -134,6 +141,46 @@ export default function StudioApp() {
 
         {view.name === 'moderation' && admin && <Moderation />}
       </main>
+
+      {promoteForS && <PromoteModal series={promoteForS} onClose={() => setPromoteFor(null)} />}
+    </div>
+  )
+}
+
+const PROMO_PACKAGES = [
+  { days: 3, tokens: 30 }, { days: 7, tokens: 60 }, { days: 30, tokens: 200 },
+]
+function PromoteModal({ series, onClose }: { series: DbSeries; onClose: () => void }) {
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+  const buy = async (days: number, tokens: number) => {
+    setBusy(true); setMsg(null)
+    const st = await promoteSeries(series.id, days, tokens)
+    setBusy(false)
+    if (st === 'OK') setMsg(`« ${series.title} » est mise en avant pendant ${days} jours !`)
+    else if (st === 'INSUFFICIENT') setMsg('Solde de jetons insuffisant.')
+    else setMsg('Impossible de promouvoir pour le moment.')
+  }
+  return (
+    <div className="fixed inset-0 z-[120] grid place-items-center bg-black/70 p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-ink-900 p-5 text-cream" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-1 flex items-center gap-2">
+          <MegaphoneIcon size={20} className="text-fruit-red-bright" />
+          <h3 className="font-display text-lg font-bold">Promouvoir</h3>
+        </div>
+        <p className="mb-4 text-sm text-cream/60">Booste « {series.title} » : badge <b>Sponsorisé</b> + mise en avant sur l'accueil pendant la durée choisie.</p>
+        <div className="space-y-2">
+          {PROMO_PACKAGES.map((p) => (
+            <button key={p.days} disabled={busy} onClick={() => buy(p.days, p.tokens)}
+              className="flex w-full items-center justify-between rounded-xl border border-white/15 px-4 py-3 text-left transition hover:border-white/40 disabled:opacity-50">
+              <span className="font-semibold">{p.days} jours de mise en avant</span>
+              <span className="inline-flex items-center gap-1 font-bold text-fruit-red-bright">{p.tokens} jetons</span>
+            </button>
+          ))}
+        </div>
+        {msg && <p className="mt-3 text-sm text-cream/80">{msg}</p>}
+        <button onClick={onClose} className="mt-4 w-full rounded-full border border-white/20 py-2 text-sm text-cream/70 hover:border-white/40">Fermer</button>
+      </div>
     </div>
   )
 }
@@ -153,7 +200,7 @@ function ApplicationStatus({ creator, onSignOut }: { creator: Creator; onSignOut
   return (
     <Centered>
       <div className="max-w-md text-center">
-        <div className="mb-4 text-5xl">{rejected ? '🙁' : '⏳'}</div>
+        <div className="mb-4 flex justify-center text-cream/70">{rejected ? <FrownIcon size={52} /> : <HourglassIcon size={52} />}</div>
         <h1 className="font-display text-2xl font-extrabold">
           {rejected ? 'Candidature non retenue' : 'Candidature en cours d’examen'}
         </h1>

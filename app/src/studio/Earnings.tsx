@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { listPayouts, REVENUE, type Creator, type Payout } from '../lib/creator'
+import { CardIcon, CoinIcon, GemIcon, TvIcon } from '../components/icons'
 
 const eur = (cents: number) => (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
 
@@ -30,17 +31,17 @@ export default function Earnings({ creator }: { creator: Creator }) {
         <h2 className="mb-3 font-display text-lg font-bold">Comment tu es rémunéré·e</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           <Source
-            emoji="📺" title="Publicité"
+            icon={<TvIcon size={18} />} title="Publicité"
             share={`${Math.round(REVENUE.adShare * 100)}%`}
             desc="des revenus publicitaires nets générés par tes épisodes gratuits."
           />
           <Source
-            emoji="🪙" title="Jetons"
+            icon={<CoinIcon size={18} />} title="Jetons"
             share={`${Math.round(REVENUE.tokenShare * 100)}%`}
             desc={`de la valeur de chaque jeton dépensé pour débloquer un épisode (1 jeton ≈ ${eur(REVENUE.tokenValueEur * 100)}).`}
           />
           <Source
-            emoji="💎" title="Abonnement"
+            icon={<GemIcon size={18} />} title="Abonnement"
             share={`${Math.round(REVENUE.subscriptionShare * 100)}%`}
             desc="du prix HT de l'abonnement, réparti au prorata du temps réellement passé sur tes séries."
           />
@@ -84,7 +85,7 @@ export default function Earnings({ creator }: { creator: Creator }) {
       </div>
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-cream/60">
-        💳 Les versements passeront par <span className="font-semibold text-cream/80">Stripe Connect</span> une fois les paiements activés. Tu connecteras ton compte bancaire directement chez Stripe (KYC sécurisé) — NETFRUIT prélèvera automatiquement sa part et te reversera le reste.
+        <CardIcon size={16} className="mr-1 inline align-text-bottom" />Les versements passeront par <span className="font-semibold text-cream/80">Stripe Connect</span> une fois les paiements activés. Tu connecteras ton compte bancaire directement chez Stripe (KYC sécurisé) — NETFRUIT prélèvera automatiquement sa part et te reversera le reste.
       </div>
     </div>
   )
@@ -98,11 +99,11 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
     </div>
   )
 }
-function Source({ emoji, title, share, desc }: { emoji: string; title: string; share: string; desc: string }) {
+function Source({ icon, title, share, desc }: { icon: ReactNode; title: string; share: string; desc: string }) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
       <div className="flex items-baseline justify-between">
-        <span className="text-lg font-bold">{emoji} {title}</span>
+        <span className="flex items-center gap-2 text-lg font-bold">{icon} {title}</span>
         <span className="text-brand-gradient font-display text-xl font-extrabold">{share}</span>
       </div>
       <p className="mt-1 text-xs leading-snug text-cream/55">{desc}</p>

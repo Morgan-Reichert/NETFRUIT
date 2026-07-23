@@ -78,6 +78,11 @@ export default function Poster({
       {/* Vignette + bottom scrim */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-black/10" />
 
+      {series.promoted && (
+        <span className="absolute right-3 top-3 rounded bg-brand-gradient px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg">
+          Sponsorisé
+        </span>
+      )}
       {series.comingSoon ? (
         <span className="absolute left-3 top-3 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black shadow-lg">
           Soon

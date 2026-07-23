@@ -85,7 +85,7 @@ export default function Moderation() {
       <div>
         <h1 className="mb-4 font-display text-2xl font-extrabold">Séries à modérer ({pending.length})</h1>
         {pending.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-white/15 p-8 text-center text-cream/50">Rien à modérer. 🎉</p>
+          <p className="rounded-xl border border-dashed border-white/15 p-8 text-center text-cream/50">Rien à modérer.</p>
         ) : (
           <ul className="space-y-4">
             {pending.map((s) => (
