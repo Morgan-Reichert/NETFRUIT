@@ -23,67 +23,61 @@ const cors = {
 
 type Kind = 'creator_approved' | 'creator_rejected' | 'series_published' | 'series_rejected'
 
-const AV = (f: string, size: number, radius: number, margin = 0) =>
-  `<img src="https://netfruit.fun/avatars/${f}.png" width="${size}" height="${size}" alt="" style="border-radius:${radius}px;display:inline-block;vertical-align:middle;margin:0 ${margin}px;">`
-const FRUIT_ROW = ['strawberry', 'lemon', 'grape', 'blueberry', 'orange', 'lime']
-  .map((f) => AV(f, 30, 9, 4)).join('')
-
 function template(kind: Kind, opts: { name?: string; seriesTitle?: string; note?: string }): { subject: string; html: string } {
   const name = opts.name || 'créateur'
-  const bodies: Record<Kind, { subject: string; hero: string; heading: string; msg: string }> = {
+  const bodies: Record<Kind, { subject: string; heading: string; msg: string; cta: string }> = {
     creator_approved: {
       subject: 'Bienvenue — ton compte créateur NETFRUIT est validé',
-      hero: 'strawberry', heading: 'Candidature acceptée !',
-      msg: `Félicitations <b>${name}</b> ! Ton compte créateur est officiellement <b>certifié</b>.<br>Tu peux dès maintenant publier tes séries sur NETFRUIT depuis ton Studio.`,
+      heading: 'Candidature acceptée', cta: 'Ouvrir le Studio',
+      msg: `Félicitations ${name}, ton compte créateur est officiellement certifié. Tu peux dès maintenant publier tes séries sur NETFRUIT depuis ton Studio.`,
     },
     creator_rejected: {
       subject: 'Ta candidature créateur NETFRUIT',
-      hero: 'lemon', heading: 'Candidature non retenue',
-      msg: `Bonjour <b>${name}</b>, après examen, ta candidature n'a pas été retenue pour le moment.${opts.note ? `<br><br><span style="color:#f4a72e">Motif : ${opts.note}</span>` : ''}<br><br>Tu peux retravailler ton dossier et re-candidater quand tu veux.`,
+      heading: 'Candidature non retenue', cta: 'Re-candidater',
+      msg: `Bonjour ${name}, après examen, ta candidature n'a pas été retenue pour le moment.${opts.note ? ` Motif : ${opts.note}.` : ''} Tu peux retravailler ton dossier et re-candidater quand tu veux.`,
     },
     series_published: {
       subject: `Ta série « ${opts.seriesTitle ?? ''} » est en ligne`,
-      hero: 'banana', heading: 'Ta série est en ligne !',
-      msg: `Bonne nouvelle <b>${name}</b> — ta série <b>${opts.seriesTitle ?? ''}</b> a passé la modération et est maintenant <b>en ligne</b> sur NETFRUIT.`,
+      heading: 'Ta série est en ligne', cta: 'Voir sur NETFRUIT',
+      msg: `Bonne nouvelle ${name}, ta série « ${opts.seriesTitle ?? ''} » a passé la modération et est maintenant en ligne sur NETFRUIT.`,
     },
     series_rejected: {
       subject: `Ta série « ${opts.seriesTitle ?? ''} » — décision de modération`,
-      hero: 'pear', heading: 'Série non publiée',
-      msg: `Bonjour <b>${name}</b>, ta série <b>${opts.seriesTitle ?? ''}</b> n'a pas pu être publiée en l'état.${opts.note ? `<br><br><span style="color:#f4a72e">Motif : ${opts.note}</span>` : ''}<br><br>Corrige les points signalés puis re-soumets-la depuis ton Studio.`,
+      heading: 'Série non publiée', cta: 'Modifier ma série',
+      msg: `Bonjour ${name}, ta série « ${opts.seriesTitle ?? ''} » n'a pas pu être publiée en l'état.${opts.note ? ` Motif : ${opts.note}.` : ''} Corrige les points signalés puis re-soumets-la depuis ton Studio.`,
     },
   }
   const b = bodies[kind]
-  const grad = 'linear-gradient(135deg,#0a6fb0 0%,#10a1a0 52%,#14a866 100%)'
-  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#04100f;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#04100f;font-family:'Segoe UI',Arial,Helvetica,sans-serif;">
-    <tr><td align="center" style="padding:28px 12px;">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  const grad = 'linear-gradient(135deg,#0a6fb0,#14a866)'
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f0f3f2;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0f3f2;font-family:-apple-system,'Segoe UI',Arial,Helvetica,sans-serif;">
+    <tr><td align="center" style="padding:32px 14px;">
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
 
-        <!-- Header: gradient band + logo + fruit illustrations -->
-        <tr><td style="background:${grad};border-radius:22px 22px 0 0;padding:32px 24px 22px;text-align:center;">
-          <img src="${LOGO}" alt="NETFRUIT" width="190" style="display:block;margin:0 auto;height:auto;max-width:80%;">
-          <div style="margin-top:18px;line-height:1;">${FRUIT_ROW}</div>
+        <!-- thin brand accent -->
+        <tr><td style="height:4px;background:${grad};font-size:0;line-height:0;">&nbsp;</td></tr>
+
+        <!-- logo -->
+        <tr><td style="padding:28px 36px 8px;">
+          <img src="${LOGO}" alt="NETFRUIT" height="26" style="height:26px;width:auto;display:block;">
         </td></tr>
 
-        <!-- Body card -->
-        <tr><td style="background:#0c2523;padding:34px 32px 30px;text-align:center;">
-          ${AV(b.hero, 76, 20)}
-          <h1 style="margin:16px 0 16px;font-size:25px;font-weight:800;color:#ffffff;">${b.heading}</h1>
-          <p style="margin:0 auto;max-width:440px;font-size:15px;line-height:1.7;color:#d8e6e2;">${b.msg}</p>
-          <div style="margin-top:28px;">
-            <a href="https://netfruit.fun/studio" style="display:inline-block;background:${grad};color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 34px;border-radius:999px;font-size:15px;">Ouvrir le Studio</a>
-          </div>
+        <!-- body -->
+        <tr><td style="padding:8px 36px 28px;">
+          <h1 style="margin:0 0 14px;font-size:20px;font-weight:700;color:#12211f;">${b.heading}</h1>
+          <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#4a5a57;">${b.msg}</p>
+          <a href="https://netfruit.fun/studio" style="display:inline-block;background:${grad};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 26px;border-radius:8px;font-size:14px;">${b.cta}</a>
         </td></tr>
 
-        <!-- Fruit divider -->
-        <tr><td style="background:#0c2523;padding:6px 30px 20px;text-align:center;line-height:1;">${FRUIT_ROW}</td></tr>
-
-        <!-- Footer -->
-        <tr><td style="background:#081b1a;border-radius:0 0 22px 22px;padding:24px 30px;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#7f9b96;line-height:1.7;">
-            <span style="color:#12a565;font-weight:bold;">NETFRUIT</span> — le streaming des séries de fruits IA<br>
-            <a href="mailto:contact@netfruit.fun" style="color:#12a565;text-decoration:none;">contact@netfruit.fun</a>
+        <!-- footer -->
+        <tr><td style="padding:20px 36px 26px;border-top:1px solid #eceeed;">
+          <p style="margin:0 0 8px;font-size:12px;line-height:1.7;color:#9aa5a2;">
+            <a href="https://netfruit.fun" style="color:#0f8f8f;text-decoration:none;">netfruit.fun</a>
+            &nbsp;·&nbsp;<a href="mailto:contact@netfruit.fun" style="color:#0f8f8f;text-decoration:none;">Contact</a>
+            &nbsp;·&nbsp;<a href="https://netfruit.fun/studio" style="color:#0f8f8f;text-decoration:none;">Politique de contenu</a>
+            &nbsp;·&nbsp;<a href="https://netfruit.fun/studio" style="color:#0f8f8f;text-decoration:none;">Accord Créateur</a>
           </p>
+          <p style="margin:0;font-size:11px;color:#b7bfbd;">© NETFRUIT — Email envoyé à propos de ta candidature créateur.</p>
         </td></tr>
 
       </table>
