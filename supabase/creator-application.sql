@@ -26,3 +26,8 @@ $$;
 
 -- The house account is already trusted — approve it so we don't lock ourselves out.
 update creators set status = 'approved' where handle = 'netfruit';
+
+-- Extra application fields (identity — birth date is required in the UI for 18+ check)
+alter table creators add column if not exists birth_date date;
+alter table creators add column if not exists legal_name text;
+alter table creators add column if not exists country    text;

@@ -5,6 +5,10 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
   const [displayName, setDisplayName] = useState('')
   const [handle, setHandle] = useState('')
   const [bio, setBio] = useState('')
+  // identity
+  const [legalName, setLegalName] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [country, setCountry] = useState('')
   // proofs
   const [tiktok, setTiktok] = useState('')
   const [instagram, setInstagram] = useState('')
@@ -22,15 +26,25 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const ageOf = (d: string) => {
+    if (!d) return 0
+    const b = new Date(d), t = new Date()
+    let a = t.getFullYear() - b.getFullYear()
+    if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) a--
+    return a
+  }
+  const adult = ageOf(birthDate) >= 18
   const hasProof = !!(tiktok.trim() || instagram.trim() || youtube.trim() || portfolio.trim())
   const canSubmit =
-    displayName.trim() && handle.trim() && experience.trim().length >= 20 && rights.trim().length >= 15 &&
+    displayName.trim() && handle.trim() && legalName.trim() && adult &&
+    experience.trim().length >= 20 && rights.trim().length >= 15 &&
     hasProof && agreeRights && agreeRules && agreePolicy && agreeReview && !busy
 
   const submit = async () => {
     setError(null); setBusy(true)
     const r = await applyAsCreator(userId, {
       handle: slugify(handle), display_name: displayName.trim(), bio: bio.trim() || undefined,
+      legal_name: legalName.trim(), birth_date: birthDate, country: country.trim() || undefined,
       socials: {
         tiktok: tiktok.trim() || undefined, instagram: instagram.trim() || undefined,
         youtube: youtube.trim() || undefined,
@@ -67,6 +81,18 @@ export default function Onboarding({ userId, onDone }: { userId: string; onDone:
         <Field label="Bio">
           <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2} placeholder="Qui es-tu, quel genre de séries ?" className={inp} />
         </Field>
+        <Field label="Nom et prénom légaux *">
+          <input value={legalName} onChange={(e) => setLegalName(e.target.value)} placeholder="Comme sur ta pièce d'identité" className={inp} />
+        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Date de naissance *">
+            <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className={inp} />
+            {birthDate && !adult && <p className="mt-1 text-xs text-fruit-red-bright">Tu dois avoir au moins 18 ans.</p>}
+          </Field>
+          <Field label="Pays de résidence">
+            <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="France" className={inp} />
+          </Field>
+        </div>
       </Section>
 
       {/* 2. Preuves de savoir-faire */}

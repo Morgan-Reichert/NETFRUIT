@@ -16,6 +16,9 @@ export interface Creator {
   answers?: Record<string, string> | null
   review_note?: string | null
   applied_at?: string
+  birth_date?: string | null
+  legal_name?: string | null
+  country?: string | null
 }
 
 /** Treats a missing status (pre-migration house account) as approved. */
@@ -96,18 +99,27 @@ export async function getMyCreator(userId: string): Promise<Creator | null> {
 export async function applyAsCreator(userId: string, p: {
   handle: string; display_name: string; bio?: string; avatar_url?: string
   socials?: Creator['socials']; portfolio_url?: string; experience?: string
-  answers?: Record<string, string>
+  answers?: Record<string, string>; birth_date?: string; legal_name?: string; country?: string
 }): Promise<{ creator?: Creator; error?: string }> {
   const { data, error } = await sb().from('creators')
     .insert({
       id: userId, handle: p.handle, display_name: p.display_name, bio: p.bio ?? null,
       avatar_url: p.avatar_url ?? null, socials: p.socials ?? {}, portfolio_url: p.portfolio_url ?? null,
       experience: p.experience ?? null, answers: p.answers ?? {},
+      birth_date: p.birth_date ?? null, legal_name: p.legal_name ?? null, country: p.country ?? null,
       // status defaults to 'pending' in the DB
     })
     .select().single()
   if (error) return { error: error.code === '23505' ? 'Ce handle est déjà pris.' : error.message }
   return { creator: data as Creator }
+}
+
+/** Fire a branded transactional email via the Edge Function (best-effort). */
+export async function sendDecisionEmail(payload: {
+  kind: 'creator_approved' | 'creator_rejected' | 'series_published' | 'series_rejected'
+  creatorId?: string; seriesTitle?: string; note?: string
+}) {
+  try { await sb().functions.invoke('send-email', { body: payload }) } catch { /* email is best-effort */ }
 }
 
 // ---- admin: creator certification review -----------------------------------

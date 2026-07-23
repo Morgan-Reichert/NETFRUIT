@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  listEpisodes, listPending, listPendingCreators, setCreatorStatus, setSeriesStatus,
+  listEpisodes, listPending, listPendingCreators, sendDecisionEmail, setCreatorStatus, setSeriesStatus,
   type Creator, type DbEpisode, type DbSeries,
 } from '../lib/creator'
 
@@ -23,10 +23,18 @@ export default function Moderation() {
   const decideCreator = async (id: string, status: 'approved' | 'rejected') => {
     let note: string | undefined
     if (status === 'rejected') note = window.prompt('Motif du refus (optionnel) :') ?? undefined
-    setBusy(id); await setCreatorStatus(id, status, note); setBusy(null); refresh()
+    setBusy(id)
+    await setCreatorStatus(id, status, note)
+    await sendDecisionEmail({ kind: status === 'approved' ? 'creator_approved' : 'creator_rejected', creatorId: id, note })
+    setBusy(null); refresh()
   }
-  const decideSeries = async (id: string, status: 'published' | 'rejected') => {
-    setBusy(id); await setSeriesStatus(id, status); setBusy(null); refresh()
+  const decideSeries = async (s: DbSeries, status: 'published' | 'rejected') => {
+    let note: string | undefined
+    if (status === 'rejected') note = window.prompt('Motif du refus (optionnel) :') ?? undefined
+    setBusy(s.id)
+    await setSeriesStatus(s.id, status)
+    await sendDecisionEmail({ kind: status === 'published' ? 'series_published' : 'series_rejected', creatorId: s.creator_id, seriesTitle: s.title, note })
+    setBusy(null); refresh()
   }
 
   return (
@@ -47,7 +55,12 @@ export default function Moderation() {
                     {c.bio && <p className="text-sm text-cream/60">{c.bio}</p>}
                   </div>
                 </div>
-                {c.experience && <p className="mt-3 text-sm text-cream/80"><span className="text-cream/40">Expérience : </span>{c.experience}</p>}
+                <p className="mt-2 text-sm text-cream/70">
+                  {c.legal_name && <span><span className="text-cream/40">Identité : </span>{c.legal_name}</span>}
+                  {c.birth_date && <span> · <span className="text-cream/40">Né·e le </span>{c.birth_date}</span>}
+                  {c.country && <span> · {c.country}</span>}
+                </p>
+                {c.experience && <p className="mt-2 text-sm text-cream/80"><span className="text-cream/40">Expérience : </span>{c.experience}</p>}
                 {c.answers?.tools && <p className="mt-1 text-sm text-cream/70"><span className="text-cream/40">Outils : </span>{c.answers.tools}</p>}
                 {c.answers?.rights_practice && <p className="mt-1 text-sm text-cream/70"><span className="text-cream/40">Droits : </span>{c.answers.rights_practice}</p>}
                 <div className="mt-2 flex flex-wrap gap-3 text-xs">
@@ -93,9 +106,9 @@ export default function Moderation() {
                   </div>
                 </div>
                 <div className="mt-3 flex gap-2">
-                  <button disabled={busy === s.id} onClick={() => decideSeries(s.id, 'published')}
+                  <button disabled={busy === s.id} onClick={() => decideSeries(s, 'published')}
                     className="rounded-full bg-lime px-4 py-2 text-sm font-bold text-ink-950 enabled:hover:brightness-110 disabled:opacity-40">Approuver</button>
-                  <button disabled={busy === s.id} onClick={() => decideSeries(s.id, 'rejected')}
+                  <button disabled={busy === s.id} onClick={() => decideSeries(s, 'rejected')}
                     className="rounded-full bg-fruit-red-bright px-4 py-2 text-sm font-bold text-white enabled:hover:brightness-110 disabled:opacity-40">Rejeter</button>
                 </div>
               </li>
