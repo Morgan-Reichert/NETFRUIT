@@ -1,3 +1,69 @@
-{ "title": "Overripe — Ep. 2: Filtered", "bakedAudio": true, "langs": [],
-  "videoUrl": "/generated/overripe/e2/video.mp4",
-  "shots": [ { "speaker": "", "imageUrl": "/generated/overripe/poster.jpg", "clipUrl": "/generated/overripe/e2/video.mp4", "voiceUrls": {}, "captions": {}, "durationSec": 25 } ] }
+{
+  "title": "Overripe — Ep. 2: Filtered",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e2.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e2.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 25
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 5,
+        "text": "ÉPISODE 2 — FILTERED"
+      },
+      {
+        "start": 5.5,
+        "end": 14,
+        "text": "Le sérum marche…\nGloire retrouvée !"
+      },
+      {
+        "start": 14.5,
+        "end": 24,
+        "text": "Mais la dette…\net la trahison de Sunny…"
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 5,
+        "text": "EPISODE 2 — FILTERED"
+      },
+      {
+        "start": 5.5,
+        "end": 14,
+        "text": "The serum works…\nGlory is back!"
+      },
+      {
+        "start": 14.5,
+        "end": 24,
+        "text": "But the debt…\nand Sunny's betrayal…"
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 5,
+        "text": "EPISODIO 2 — FILTERED"
+      },
+      {
+        "start": 5.5,
+        "end": 14,
+        "text": "El suero funciona…\n¡La gloria ha vuelto!"
+      },
+      {
+        "start": 14.5,
+        "end": 24,
+        "text": "Pero la deuda…\ny la traición de Sunny…"
+      }
+    ]
+  }
+}

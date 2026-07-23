@@ -1,3 +1,84 @@
-{ "title": "Overripe — Ep. 1: Best Before", "bakedAudio": true, "langs": [],
-  "videoUrl": "/generated/overripe/e1/video.mp4",
-  "shots": [ { "speaker": "", "imageUrl": "/generated/overripe/poster.jpg", "clipUrl": "/generated/overripe/e1/video.mp4", "voiceUrls": {}, "captions": {}, "durationSec": 10 } ] }
+{
+  "title": "Overripe — Ep. 1: Best Before",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e1.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e1.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 10
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "ÉPISODE 1 — BEST BEFORE"
+      },
+      {
+        "start": 6.5,
+        "end": 15,
+        "text": "Les vues s'effondrent…\nLes taches s'étendent…"
+      },
+      {
+        "start": 16,
+        "end": 25,
+        "text": "« Tu es fini, Chad. »"
+      },
+      {
+        "start": 26,
+        "end": 34,
+        "text": "La tentation du sérum…"
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODE 1 — BEST BEFORE"
+      },
+      {
+        "start": 6.5,
+        "end": 15,
+        "text": "Views are crashing…\nThe spots keep spreading…"
+      },
+      {
+        "start": 16,
+        "end": 25,
+        "text": "“You're done, Chad.”"
+      },
+      {
+        "start": 26,
+        "end": 34,
+        "text": "The temptation of the serum…"
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODIO 1 — BEST BEFORE"
+      },
+      {
+        "start": 6.5,
+        "end": 15,
+        "text": "Las vistas se derrumban…\nLas manchas se extienden…"
+      },
+      {
+        "start": 16,
+        "end": 25,
+        "text": "« Estás acabado, Chad. »"
+      },
+      {
+        "start": 26,
+        "end": 34,
+        "text": "La tentación del suero…"
+      }
+    ]
+  }
+}

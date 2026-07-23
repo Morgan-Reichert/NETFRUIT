@@ -1,3 +1,84 @@
-{ "title": "Overripe — Ep. 4: The Crash", "bakedAudio": true, "langs": [],
-  "videoUrl": "/generated/overripe/e4/video.mp4",
-  "shots": [ { "speaker": "", "imageUrl": "/generated/overripe/poster.jpg", "clipUrl": "/generated/overripe/e4/video.mp4", "voiceUrls": {}, "captions": {}, "durationSec": 40 } ] }
+{
+  "title": "Overripe — Ep. 4: The Crash",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e4.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e4.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 40
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "ÉPISODE 4 — THE CRASH"
+      },
+      {
+        "start": 6.5,
+        "end": 16,
+        "text": "Live désespéré…"
+      },
+      {
+        "start": 16.5,
+        "end": 28,
+        "text": "Pourriture en direct — CANCELLED"
+      },
+      {
+        "start": 28.5,
+        "end": 40,
+        "text": "Abandonné de tous."
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODE 4 — THE CRASH"
+      },
+      {
+        "start": 6.5,
+        "end": 16,
+        "text": "Desperate live…"
+      },
+      {
+        "start": 16.5,
+        "end": 28,
+        "text": "Rotting live — CANCELLED"
+      },
+      {
+        "start": 28.5,
+        "end": 40,
+        "text": "Abandoned by everyone."
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODIO 4 — THE CRASH"
+      },
+      {
+        "start": 6.5,
+        "end": 16,
+        "text": "Directo desesperado…"
+      },
+      {
+        "start": 16.5,
+        "end": 28,
+        "text": "Podrido en vivo — CANCELADO"
+      },
+      {
+        "start": 28.5,
+        "end": 40,
+        "text": "Abandonado por todos."
+      }
+    ]
+  }
+}

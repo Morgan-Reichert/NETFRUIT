@@ -1,3 +1,99 @@
-{ "title": "Overripe — Ep. 3: Trending", "bakedAudio": true, "langs": [],
-  "videoUrl": "/generated/overripe/e3/video.mp4",
-  "shots": [ { "speaker": "", "imageUrl": "/generated/overripe/poster.jpg", "clipUrl": "/generated/overripe/e3/video.mp4", "voiceUrls": {}, "captions": {}, "durationSec": 59 } ] }
+{
+  "title": "Overripe — Ep. 3: Trending",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e3.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e3.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 59
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "ÉPISODE 3 — TRENDING"
+      },
+      {
+        "start": 6.5,
+        "end": 20,
+        "text": "Sommet de l'orgueil…"
+      },
+      {
+        "start": 25,
+        "end": 35,
+        "text": "Sunny découvre l'horreur du sérum."
+      },
+      {
+        "start": 40,
+        "end": 52,
+        "text": "Kiki fait chanter Chad."
+      },
+      {
+        "start": 53,
+        "end": 59,
+        "text": "Les taches s'accélèrent…"
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODE 3 — TRENDING"
+      },
+      {
+        "start": 6.5,
+        "end": 20,
+        "text": "Peak of arrogance…"
+      },
+      {
+        "start": 25,
+        "end": 35,
+        "text": "Sunny discovers the horror of the serum."
+      },
+      {
+        "start": 40,
+        "end": 52,
+        "text": "Kiki blackmails Chad."
+      },
+      {
+        "start": 53,
+        "end": 59,
+        "text": "The spots accelerate…"
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODIO 3 — TRENDING"
+      },
+      {
+        "start": 6.5,
+        "end": 20,
+        "text": "Cima del orgullo…"
+      },
+      {
+        "start": 25,
+        "end": 35,
+        "text": "Sunny descubre el horror del suero."
+      },
+      {
+        "start": 40,
+        "end": 52,
+        "text": "Kiki chantajea a Chad."
+      },
+      {
+        "start": 53,
+        "end": 59,
+        "text": "Las manchas se aceleran…"
+      }
+    ]
+  }
+}

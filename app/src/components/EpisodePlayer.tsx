@@ -35,14 +35,17 @@ interface Shot {
   caption?: string // legacy
   durationSec: number
 }
+interface Cue { start: number; end: number; text: string }
 interface Manifest {
   title: string
   shots: Shot[]
   langs?: Lang[]
   videoUrl?: string | null
   /** True for full-episode videos with their own baked audio (e.g. Grok clips):
-   *  play the video unmuted, no overlaid music/voice/captions, advance on end. */
+   *  play the video unmuted, no overlaid music/voice, advance on end. */
   bakedAudio?: boolean
+  /** Timed narrative subtitles per language for baked-audio episodes. */
+  subtitles?: Partial<Record<Lang, Cue[]>>
 }
 
 const capOf = (s: Shot, l: Lang) => s.captions?.[l] ?? s.caption ?? ''
@@ -71,6 +74,7 @@ export default function EpisodePlayer({
   const [shown, setShown] = useState(0)
   const [ep, setEp] = useState(startEp)
   const [music, setMusic] = useState(true)
+  const [curTime, setCurTime] = useState(0)
 
   const episodeList = series?.episodes ?? []
   const manifestUrl =
@@ -130,7 +134,7 @@ export default function EpisodePlayer({
 
   // Load the current episode's manifest.
   useEffect(() => {
-    setManifest(null); setI(0); setShown(0); setDone(false); setPaused(false)
+    setManifest(null); setI(0); setShown(0); setCurTime(0); setDone(false); setPaused(false)
     if (!series || !manifestUrl) return
     let cancelled = false
     fetch(manifestUrl, { cache: 'no-store' })
@@ -203,6 +207,11 @@ export default function EpisodePlayer({
   const visible = manifest?.shots[shown]
   const total = manifest?.shots.length ?? 0
   const subtitle = !baked && shot && subLang !== 'off' ? capOf(shot, subLang) : ''
+  // Timed narrative subtitle for baked-audio episodes, driven by the video clock.
+  const bakedSub =
+    baked && manifest?.subtitles && subLang !== 'off'
+      ? (manifest.subtitles[subLang] ?? []).find((c) => curTime >= c.start && curTime < c.end)?.text ?? ''
+      : ''
   const filter = QUALITY_FILTER[quality]
 
   return (
@@ -232,6 +241,7 @@ export default function EpisodePlayer({
                       muted={!baked}
                       loop={!baked}
                       playsInline
+                      onTimeUpdate={baked ? (e) => setCurTime(e.currentTarget.currentTime) : undefined}
                       onEnded={baked ? () => { clearTimer(); next() } : undefined}
                       onLoadedMetadata={
                         baked
@@ -283,6 +293,19 @@ export default function EpisodePlayer({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Baked-audio timed narrative subtitle (Grok episodes) */}
+            {bakedSub && (
+              <motion.div
+                key={'bsub' + bakedSub}
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="pointer-events-none absolute inset-x-0 bottom-24 z-10 mx-auto max-w-3xl px-6 text-center"
+              >
+                <p className="whitespace-pre-line font-display text-2xl font-extrabold uppercase leading-tight tracking-wide text-cream text-shadow-cinema sm:text-3xl">
+                  {bakedSub}
+                </p>
+              </motion.div>
+            )}
 
             {!manifest && <div className="grid h-full place-items-center text-cream/60">Loading episode…</div>}
 
