@@ -138,36 +138,47 @@ export default function DetailModal({
               </div>
             </div>
 
-            {/* Episodes */}
-            {(series.episodes?.length ?? 0) > 0 && (
-              <div className="px-6 pb-4 sm:px-8">
-                <h3 className="font-display text-lg font-bold text-cream">
-                  Episodes · Season 1 <span className="text-cream/40">({series.episodes!.length})</span>
-                </h3>
-                <div className="mt-3 divide-y divide-white/5 rounded-xl border border-white/5">
-                  {series.episodes!.map((e) => (
-                    <button
-                      key={e.number}
-                      onClick={() => onPlay(series, e.number)}
-                      className="flex w-full items-center gap-4 p-3 text-left transition hover:bg-white/5"
-                    >
-                      <span className="w-5 text-center text-lg font-bold text-cream/40">{e.number}</span>
-                      <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md">
-                        <Poster series={series} ratio="landscape" showTitle={false} />
-                        <span className="absolute inset-0 grid place-items-center bg-black/30 text-cream">
-                          <PlayIcon size={18} />
-                        </span>
+            {/* Episodes — grouped by season */}
+            {(series.episodes?.length ?? 0) > 0 && (() => {
+              const eps = series.episodes!
+              const seasons = [...new Set(eps.map((e) => e.season ?? 1))].sort((a, b) => a - b)
+              return (
+                <div className="px-6 pb-4 sm:px-8">
+                  {seasons.map((sn) => {
+                    const list = eps.filter((e) => (e.season ?? 1) === sn)
+                    return (
+                      <div key={sn} className="mb-5 last:mb-0">
+                        <h3 className="font-display text-lg font-bold text-cream">
+                          Episodes · Season {sn} <span className="text-cream/40">({list.length})</span>
+                        </h3>
+                        <div className="mt-3 divide-y divide-white/5 rounded-xl border border-white/5">
+                          {list.map((e) => (
+                            <button
+                              key={e.number}
+                              onClick={() => onPlay(series, e.number)}
+                              className="flex w-full items-center gap-4 p-3 text-left transition hover:bg-white/5"
+                            >
+                              <span className="w-5 text-center text-lg font-bold text-cream/40">{e.ep ?? e.number}</span>
+                              <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md">
+                                <Poster series={series} ratio="landscape" showTitle={false} />
+                                <span className="absolute inset-0 grid place-items-center bg-black/30 text-cream">
+                                  <PlayIcon size={18} />
+                                </span>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-semibold text-cream">{e.title}</p>
+                                <p className="truncate text-xs text-cream/50">Season {sn} · Episode {e.ep ?? e.number} · AI-generated</p>
+                              </div>
+                              <span className="text-xs text-cream/50">{Math.max(1, Math.round(e.durationSec / 60))}m</span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-cream">{e.title}</p>
-                        <p className="truncate text-xs text-cream/50">Episode {e.number} · AI-generated</p>
-                      </div>
-                      <span className="text-xs text-cream/50">{Math.max(1, Math.round(e.durationSec / 60))}m</span>
-                    </button>
-                  ))}
+                    )
+                  })}
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* More like this */}
             <div className="p-6 sm:p-8">

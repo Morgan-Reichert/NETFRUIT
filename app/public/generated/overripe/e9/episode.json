@@ -1,0 +1,69 @@
+{
+  "title": "Overripe — S2 E4: Sunny's Choice",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e9.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e9.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 25
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E4 — SUNNY'S CHOICE"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Sunny est tentée par la gloire."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "Elle choisit la loyauté."
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E4 — SUNNY'S CHOICE"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Sunny is tempted by fame."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "She chooses loyalty."
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E4 — SUNNY'S CHOICE"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Sunny es tentada por la fama."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "Ella elige la lealtad."
+      }
+    ]
+  }
+}

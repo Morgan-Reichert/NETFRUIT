@@ -1,0 +1,69 @@
+{
+  "title": "Overripe — S2 E1: New Roots",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e6.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e6.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 25
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E1 — NEW ROOTS"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Chad poste du vrai contenu."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "L'algo l'ignore encore…"
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E1 — NEW ROOTS"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Chad posts real content."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "The algorithm still ignores him…"
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E1 — NEW ROOTS"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Chad publica contenido real."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "El algoritmo lo sigue ignorando…"
+      }
+    ]
+  }
+}

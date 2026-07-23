@@ -74,7 +74,7 @@ export interface Series {
   generated?: boolean
   posterUrl?: string
   episodeManifest?: string
-  episodes?: { number: number; title: string; manifest: string; durationSec: number }[]
+  episodes?: { number: number; title: string; manifest: string; durationSec: number; season?: number; ep?: number }[]
   producedBy?: string
 }
 

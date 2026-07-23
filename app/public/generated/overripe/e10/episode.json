@@ -1,0 +1,69 @@
+{
+  "title": "Overripe — S2 E5: Overripe Forever",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e10.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e10.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 25
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E5 — OVERRIPE FOREVER"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Chad réfléchit…"
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "Ils restent authentiques. Ensemble."
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E5 — OVERRIPE FOREVER"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Chad reflects…"
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "They stay authentic. Together."
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E5 — OVERRIPE FOREVER"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Chad reflexiona…"
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "Permanecen auténticos. Juntos."
+      }
+    ]
+  }
+}

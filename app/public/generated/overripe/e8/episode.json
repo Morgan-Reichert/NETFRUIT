@@ -1,0 +1,69 @@
+{
+  "title": "Overripe — S2 E3: Compost 2.0",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e8.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e8.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 25
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E3 — COMPOST 2.0"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Dr. Gloss revient avec un nouveau sérum."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "Chad hésite…"
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E3 — COMPOST 2.0"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "Dr. Gloss returns with a new serum."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "Chad hesitates…"
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 5.5,
+        "text": "S2 E3 — COMPOST 2.0"
+      },
+      {
+        "start": 6,
+        "end": 15,
+        "text": "El Dr. Gloss regresa con un nuevo suero."
+      },
+      {
+        "start": 15.5,
+        "end": 25,
+        "text": "Chad duda…"
+      }
+    ]
+  }
+}

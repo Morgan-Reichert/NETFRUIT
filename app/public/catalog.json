@@ -5,7 +5,7 @@
     "fruit": "banana",
     "year": 2026,
     "maturity": "16+",
-    "seasons": 1,
+    "seasons": 2,
     "match": 98,
     "genres": [
       "Dark Comedy",
@@ -17,7 +17,7 @@
       "Bingeable"
     ],
     "synopsis": "On FruitTok, relevance is life. Chad Banana — a fading star rotting in real time — sells his soul to stay fresh. A savage satire of fame, filters and the fear of going overripe.",
-    "runtime": "5 episodes",
+    "runtime": "2 seasons · 10 episodes",
     "generated": true,
     "newBadge": true,
     "featured": true,
@@ -28,31 +28,81 @@
         "number": 1,
         "title": "Best Before",
         "manifest": "/generated/overripe/e1/episode.json",
-        "durationSec": 34
+        "durationSec": 34,
+        "season": 1,
+        "ep": 1
       },
       {
         "number": 2,
         "title": "Filtered",
         "manifest": "/generated/overripe/e2/episode.json",
-        "durationSec": 25
+        "durationSec": 25,
+        "season": 1,
+        "ep": 2
       },
       {
         "number": 3,
         "title": "Trending",
         "manifest": "/generated/overripe/e3/episode.json",
-        "durationSec": 59
+        "durationSec": 59,
+        "season": 1,
+        "ep": 3
       },
       {
         "number": 4,
         "title": "The Crash",
         "manifest": "/generated/overripe/e4/episode.json",
-        "durationSec": 40
+        "durationSec": 40,
+        "season": 1,
+        "ep": 4
       },
       {
         "number": 5,
         "title": "Overripe",
         "manifest": "/generated/overripe/e5/episode.json",
-        "durationSec": 34
+        "durationSec": 34,
+        "season": 1,
+        "ep": 5
+      },
+      {
+        "number": 6,
+        "season": 2,
+        "ep": 1,
+        "title": "New Roots",
+        "manifest": "/generated/overripe/e6/episode.json",
+        "durationSec": 25
+      },
+      {
+        "number": 7,
+        "season": 2,
+        "ep": 2,
+        "title": "Viral Decay",
+        "manifest": "/generated/overripe/e7/episode.json",
+        "durationSec": 25
+      },
+      {
+        "number": 8,
+        "season": 2,
+        "ep": 3,
+        "title": "Compost 2.0",
+        "manifest": "/generated/overripe/e8/episode.json",
+        "durationSec": 25
+      },
+      {
+        "number": 9,
+        "season": 2,
+        "ep": 4,
+        "title": "Sunny's Choice",
+        "manifest": "/generated/overripe/e9/episode.json",
+        "durationSec": 25
+      },
+      {
+        "number": 10,
+        "season": 2,
+        "ep": 5,
+        "title": "Overripe Forever",
+        "manifest": "/generated/overripe/e10/episode.json",
+        "durationSec": 25
       }
     ],
     "producedBy": "grok (manual)"
