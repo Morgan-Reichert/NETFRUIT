@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../lib/auth'
 import AuthModal from '../components/AuthModal'
 import {
-  amIAdmin, getMyCreator, listMySeries, type Creator, type DbSeries,
+  amIAdmin, getMyCreator, isApprovedCreator, listMySeries, type Creator, type DbSeries,
 } from '../lib/creator'
 import Onboarding from './Onboarding'
 import SeriesEditor from './SeriesEditor'
@@ -63,6 +63,9 @@ export default function StudioApp() {
   }
   if (!creator) {
     return <Onboarding userId={user.id} onDone={refreshCreator} />
+  }
+  if (!isApprovedCreator(creator)) {
+    return <ApplicationStatus creator={creator} onSignOut={signOut} />
   }
 
   // --- studio shell ---
@@ -144,6 +147,31 @@ function Tab({ on, onClick, children }: { on: boolean; onClick: () => void; chil
 }
 function Centered({ children }: { children: React.ReactNode }) {
   return <div className="grid min-h-screen place-items-center bg-ink-950 p-6 text-cream">{children}</div>
+}
+function ApplicationStatus({ creator, onSignOut }: { creator: Creator; onSignOut: () => void }) {
+  const rejected = creator.status === 'rejected'
+  return (
+    <Centered>
+      <div className="max-w-md text-center">
+        <div className="mb-4 text-5xl">{rejected ? '🙁' : '⏳'}</div>
+        <h1 className="font-display text-2xl font-extrabold">
+          {rejected ? 'Candidature non retenue' : 'Candidature en cours d’examen'}
+        </h1>
+        <p className="mt-3 text-cream/70">
+          {rejected
+            ? 'Ta candidature créateur n’a pas été approuvée cette fois-ci.'
+            : `Merci @${creator.handle} ! Notre équipe examine ton dossier. Tu recevras l’accès dès qu’il sera validé.`}
+        </p>
+        {rejected && creator.review_note && (
+          <p className="mt-3 rounded-lg bg-white/5 px-4 py-3 text-sm text-cream/70">« {creator.review_note} »</p>
+        )}
+        <div className="mt-6 flex items-center justify-center gap-4 text-sm">
+          <a href="/" className="text-cream/60 hover:text-cream">← Retour à NETFRUIT</a>
+          <button onClick={onSignOut} className="text-cream/60 hover:text-cream">Déconnexion</button>
+        </div>
+      </div>
+    </Centered>
+  )
 }
 function Empty({ children }: { children: React.ReactNode }) {
   return <div className="rounded-xl border border-dashed border-white/15 p-10 text-center text-cream/50">{children}</div>

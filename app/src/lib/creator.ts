@@ -1,5 +1,7 @@
 import { supabase } from './supabase'
 
+export type CreatorStatus = 'pending' | 'approved' | 'rejected'
+
 export interface Creator {
   id: string
   handle: string
@@ -7,7 +9,17 @@ export interface Creator {
   bio: string | null
   avatar_url: string | null
   is_pro: boolean
+  status?: CreatorStatus
+  socials?: { tiktok?: string; instagram?: string; youtube?: string; x?: string } | null
+  portfolio_url?: string | null
+  experience?: string | null
+  answers?: Record<string, string> | null
+  review_note?: string | null
+  applied_at?: string
 }
+
+/** Treats a missing status (pre-migration house account) as approved. */
+export const isApprovedCreator = (c: Creator | null) => !!c && (!c.status || c.status === 'approved')
 
 export type Monetization = 'free' | 'purchase' | 'subscription'
 export type SeriesStatus = 'draft' | 'pending' | 'published' | 'rejected'
@@ -81,14 +93,31 @@ export async function getMyCreator(userId: string): Promise<Creator | null> {
   return (data as Creator) ?? null
 }
 
-export async function createCreator(userId: string, p: {
+export async function applyAsCreator(userId: string, p: {
   handle: string; display_name: string; bio?: string; avatar_url?: string
+  socials?: Creator['socials']; portfolio_url?: string; experience?: string
+  answers?: Record<string, string>
 }): Promise<{ creator?: Creator; error?: string }> {
   const { data, error } = await sb().from('creators')
-    .insert({ id: userId, handle: p.handle, display_name: p.display_name, bio: p.bio ?? null, avatar_url: p.avatar_url ?? null })
+    .insert({
+      id: userId, handle: p.handle, display_name: p.display_name, bio: p.bio ?? null,
+      avatar_url: p.avatar_url ?? null, socials: p.socials ?? {}, portfolio_url: p.portfolio_url ?? null,
+      experience: p.experience ?? null, answers: p.answers ?? {},
+      // status defaults to 'pending' in the DB
+    })
     .select().single()
   if (error) return { error: error.code === '23505' ? 'Ce handle est déjà pris.' : error.message }
   return { creator: data as Creator }
+}
+
+// ---- admin: creator certification review -----------------------------------
+export async function listPendingCreators(): Promise<Creator[]> {
+  const { data } = await sb().from('creators').select('*').eq('status', 'pending').order('applied_at')
+  return (data as Creator[]) ?? []
+}
+
+export async function setCreatorStatus(id: string, status: CreatorStatus, note?: string) {
+  return sb().from('creators').update({ status, review_note: note ?? null, reviewed_at: new Date().toISOString() }).eq('id', id)
 }
 
 // ---- series -----------------------------------------------------------------
