@@ -26,6 +26,9 @@ export default function Poster({
   className?: string
 }) {
   const t = fruitTheme(series.fruit)
+  // On real key-art (usually dark/cinematic) always use light text; the theme's
+  // ink is tuned for the generative gradient poster and can be dark (e.g. banana).
+  const ink = series.posterUrl ? '#faf3ea' : t.ink
   return (
     <div
       className={`grain relative isolate h-full w-full overflow-hidden ${className}`}
@@ -83,12 +86,12 @@ export default function Poster({
 
       {showTitle && (
         <div className="absolute inset-x-0 bottom-0 p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70" style={{ color: t.ink }}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-80" style={{ color: ink }}>
             {series.genres[0]}
           </p>
           <h3
             className="font-display text-lg font-extrabold leading-[1.05] text-shadow-cinema"
-            style={{ color: t.ink }}
+            style={{ color: ink }}
           >
             {series.title}
           </h3>
