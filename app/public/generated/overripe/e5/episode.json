@@ -1,0 +1,84 @@
+{
+  "title": "Overripe — Ep. 5: Overripe",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e5.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/overripe/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/overripe/e5.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 34
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "ÉPISODE 5 — OVERRIPE"
+      },
+      {
+        "start": 6.5,
+        "end": 16,
+        "text": "Ruiné. Seul. Trop mûr."
+      },
+      {
+        "start": 16.5,
+        "end": 26,
+        "text": "Sunny revient…"
+      },
+      {
+        "start": 26.5,
+        "end": 34,
+        "text": "Enfin authentique."
+      }
+    ],
+    "en": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODE 5 — OVERRIPE"
+      },
+      {
+        "start": 6.5,
+        "end": 16,
+        "text": "Ruined. Alone. Overripe."
+      },
+      {
+        "start": 16.5,
+        "end": 26,
+        "text": "Sunny comes back…"
+      },
+      {
+        "start": 26.5,
+        "end": 34,
+        "text": "Finally authentic."
+      }
+    ],
+    "es": [
+      {
+        "start": 0,
+        "end": 6,
+        "text": "EPISODIO 5 — OVERRIPE"
+      },
+      {
+        "start": 6.5,
+        "end": 16,
+        "text": "Arruinado. Solo. Demasiado maduro."
+      },
+      {
+        "start": 16.5,
+        "end": 26,
+        "text": "Sunny regresa…"
+      },
+      {
+        "start": 26.5,
+        "end": 34,
+        "text": "Por fin auténtico."
+      }
+    ]
+  }
+}

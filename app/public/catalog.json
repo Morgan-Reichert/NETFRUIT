@@ -28,7 +28,7 @@
         "number": 1,
         "title": "Best Before",
         "manifest": "/generated/overripe/e1/episode.json",
-        "durationSec": 10
+        "durationSec": 34
       },
       {
         "number": 2,
@@ -47,6 +47,12 @@
         "title": "The Crash",
         "manifest": "/generated/overripe/e4/episode.json",
         "durationSec": 40
+      },
+      {
+        "number": 5,
+        "title": "Overripe",
+        "manifest": "/generated/overripe/e5/episode.json",
+        "durationSec": 34
       }
     ],
     "producedBy": "grok (manual)"
