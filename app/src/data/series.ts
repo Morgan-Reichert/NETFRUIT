@@ -75,7 +75,16 @@ export interface Series {
   comingSoon?: boolean
   posterUrl?: string
   episodeManifest?: string
-  episodes?: { number: number; title: string; manifest: string; durationSec: number; season?: number; ep?: number }[]
+  episodes?: {
+    number: number
+    title: string
+    manifest?: string
+    /** Inline manifest (DB-sourced episodes) — used instead of fetching `manifest`. */
+    manifestData?: unknown
+    durationSec: number
+    season?: number
+    ep?: number
+  }[]
   producedBy?: string
 }
 

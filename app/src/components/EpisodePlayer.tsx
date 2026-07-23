@@ -77,8 +77,9 @@ export default function EpisodePlayer({
   const [curTime, setCurTime] = useState(0)
 
   const episodeList = series?.episodes ?? []
-  const manifestUrl =
-    episodeList.find((e) => e.number === ep)?.manifest ?? series?.episodeManifest
+  const currentEp = episodeList.find((e) => e.number === ep)
+  const inlineManifest = currentEp?.manifestData as Manifest | undefined
+  const manifestUrl = currentEp?.manifest ?? series?.episodeManifest
   const hasNext = episodeList.some((e) => e.number === ep + 1)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -132,17 +133,19 @@ export default function EpisodePlayer({
   // Start at the requested episode whenever a new series opens.
   useEffect(() => { setEp(startEp) }, [series, startEp])
 
-  // Load the current episode's manifest.
+  // Load the current episode's manifest — inline (DB-sourced) or fetched JSON.
   useEffect(() => {
     setManifest(null); setI(0); setShown(0); setCurTime(0); setDone(false); setPaused(false)
-    if (!series || !manifestUrl) return
+    if (!series) return
+    if (inlineManifest) { setManifest(inlineManifest); return }
+    if (!manifestUrl) return
     let cancelled = false
     fetch(manifestUrl, { cache: 'no-store' })
       .then((r) => r.json())
       .then((m: Manifest) => !cancelled && setManifest(m))
       .catch(() => !cancelled && setManifest({ title: series.title, shots: [], videoUrl: null }))
     return () => { cancelled = true }
-  }, [series, manifestUrl])
+  }, [series, manifestUrl, inlineManifest])
 
   const langs: Lang[] = manifest?.langs ?? ['en', 'fr', 'es']
 
