@@ -1,5 +1,5 @@
 // NETFRUIT service worker — PWA install, safe caching, Web Push.
-const CACHE = 'netfruit-v3'
+const CACHE = 'netfruit-v4'
 
 self.addEventListener('install', (e) => {
   // Cache only the icons for installability. NOT the HTML/JS shell — caching a
@@ -24,7 +24,9 @@ self.addEventListener('fetch', (e) => {
   if (request.method !== 'GET') return
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
-  if (url.pathname.startsWith('/generated/') || url.pathname === '/catalog.json') return
+  // Never cache-freeze brand logos or generated media — serve them fresh so
+  // rebrands/new posters show up without a service-worker version bump.
+  if (url.pathname.startsWith('/generated/') || url.pathname.startsWith('/brand/') || url.pathname === '/catalog.json') return
 
   // Navigations: ALWAYS network-first; cache the fresh copy so offline gets the
   // latest (never an ancient stale shell). Fall back to cache only when offline.
