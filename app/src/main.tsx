@@ -5,11 +5,13 @@ import App from './App.tsx'
 import { UserProvider } from './lib/store'
 import { AuthProvider } from './lib/auth'
 import { ProfilesProvider, useProfiles } from './lib/profiles'
+import { useProfilesSync } from './lib/sync'
 import ProfileGate from './components/ProfileGate'
 import ErrorBoundary from './components/ErrorBoundary'
 
 function Shell() {
   const { activeId } = useProfiles()
+  useProfilesSync() // keep the "Who's watching" list in sync across devices
   if (!activeId) return <ProfileGate />
   return (
     <UserProvider key={activeId} profileId={activeId}>

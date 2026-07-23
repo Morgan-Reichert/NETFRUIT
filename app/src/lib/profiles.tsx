@@ -23,6 +23,15 @@ interface Ctx {
   add: (name: string, avatar: string) => Profile
   update: (id: string, patch: Partial<Omit<Profile, 'id'>>) => void
   remove: (id: string) => void
+  /** Merge a cloud-loaded profiles list into the local one (union by id). */
+  hydrate: (incoming: Profile[]) => void
+}
+
+/** Union by id: keep every local profile, add/refresh with any from the cloud. */
+export function mergeProfiles(local: Profile[], incoming: Profile[]): Profile[] {
+  const byId = new Map(local.map((p) => [p.id, p]))
+  for (const p of incoming) byId.set(p.id, { ...byId.get(p.id), ...p })
+  return [...byId.values()]
 }
 
 const KEY = 'netfruit.profiles.v1'
@@ -78,6 +87,7 @@ export function ProfilesProvider({ children }: { children: ReactNode }) {
       setProfiles((prev) => prev.filter((p) => p.id !== id))
       setActiveId((cur) => (cur === id ? null : cur))
     },
+    hydrate: (incoming) => setProfiles((prev) => mergeProfiles(prev, incoming)),
   }), [profiles, activeId])
 
   return <ProfilesCtx.Provider value={value}>{children}</ProfilesCtx.Provider>

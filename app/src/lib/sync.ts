@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useAuth } from './auth'
+import { useProfiles, type Profile } from './profiles'
 import { useUser, type UserState } from './store'
 import { supabase } from './supabase'
 
@@ -50,4 +51,44 @@ export function useCloudSync() {
     }, 900)
     return () => { if (timer.current) window.clearTimeout(timer.current) }
   }, [state, user])
+}
+
+/**
+ * Cross-device sync of the account's "Who's watching" profiles list.
+ *
+ * The list lives in Supabase auth `user_metadata` (no table/migration needed,
+ * and it rides along with the session on every device). On sign-in we merge the
+ * cloud list into whatever exists locally; on change we debounce-push it back.
+ * Must be mounted ABOVE the profile picker (it has to run before a profile is
+ * selected — a brand-new device has no local profile yet).
+ */
+export function useProfilesSync() {
+  const { user } = useAuth()
+  const { profiles, hydrate } = useProfiles()
+  const loadedFor = useRef<string | null>(null)
+  const timer = useRef<number | null>(null)
+
+  // Load + merge the cloud list once per signed-in account.
+  useEffect(() => {
+    if (!supabase || !user) {
+      loadedFor.current = null
+      return
+    }
+    if (loadedFor.current === user.id) return
+    const cloud = user.user_metadata?.profiles
+    if (Array.isArray(cloud) && cloud.length) hydrate(cloud as Profile[])
+    loadedFor.current = user.id
+  }, [user, hydrate])
+
+  // Push the local list up whenever it diverges from what's stored in the cloud.
+  useEffect(() => {
+    if (!supabase || !user || loadedFor.current !== user.id) return
+    const cloud = JSON.stringify(user.user_metadata?.profiles ?? [])
+    if (JSON.stringify(profiles) === cloud) return
+    if (timer.current) window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => {
+      supabase!.auth.updateUser({ data: { profiles } }).then(() => {})
+    }, 900)
+    return () => { if (timer.current) window.clearTimeout(timer.current) }
+  }, [profiles, user])
 }
