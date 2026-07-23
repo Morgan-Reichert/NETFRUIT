@@ -72,6 +72,7 @@ export interface Series {
   newBadge?: boolean
   /* --- populated for AI-generated titles loaded from /catalog.json --- */
   generated?: boolean
+  comingSoon?: boolean
   posterUrl?: string
   episodeManifest?: string
   episodes?: { number: number; title: string; manifest: string; durationSec: number; season?: number; ep?: number }[]

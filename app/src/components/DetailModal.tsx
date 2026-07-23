@@ -71,13 +71,19 @@ export default function DetailModal({
                   {series.title}
                 </h2>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={() => onPlay(series)}
-                    className="flex items-center gap-2 rounded-full bg-cream px-6 py-2.5 font-bold text-ink-950 transition hover:bg-white"
-                  >
-                    <PlayIcon size={18} />
-                    Play
-                  </button>
+                  {series.comingSoon ? (
+                    <span className="flex items-center gap-2 rounded-full bg-white/15 px-6 py-2.5 font-bold text-cream ring-1 ring-white/25">
+                      Coming soon
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => onPlay(series)}
+                      className="flex items-center gap-2 rounded-full bg-cream px-6 py-2.5 font-bold text-ink-950 transition hover:bg-white"
+                    >
+                      <PlayIcon size={18} />
+                      Play
+                    </button>
+                  )}
                   <button
                     onClick={() => toggleList(series.id)}
                     className={`grid h-11 w-11 place-items-center rounded-full border transition ${

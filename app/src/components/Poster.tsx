@@ -78,11 +78,15 @@ export default function Poster({
       {/* Vignette + bottom scrim */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-black/10" />
 
-      {series.newBadge && (
+      {series.comingSoon ? (
+        <span className="absolute left-3 top-3 rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black shadow-lg">
+          Soon
+        </span>
+      ) : series.newBadge ? (
         <span className="absolute left-3 top-3 rounded bg-fruit-red-bright px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg">
           New
         </span>
-      )}
+      ) : null}
 
       {showTitle && (
         <div className="absolute inset-x-0 bottom-0 p-3">

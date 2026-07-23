@@ -108,6 +108,31 @@
     "producedBy": "grok (manual)"
   },
   {
+    "id": "crush",
+    "title": "Crush",
+    "fruit": "strawberry",
+    "year": 2026,
+    "maturity": "PG",
+    "seasons": 1,
+    "match": 96,
+    "genres": [
+      "Romance",
+      "Rom-Com",
+      "AI Original"
+    ],
+    "tags": [
+      "Enemies to Lovers",
+      "Bingeable"
+    ],
+    "synopsis": "At JuiceHop, the city's hottest juice bar, falling in love means literally getting blended. Fraisy, a hopeless-romantic strawberry, is stuck sharing a blender with Zesto, a cynical lemon. They can't stand each other. Obviously, they make the perfect smoothie.",
+    "runtime": "Season 1 — coming soon",
+    "generated": true,
+    "newBadge": true,
+    "featured": false,
+    "comingSoon": true,
+    "posterUrl": "/generated/crush/poster.jpg"
+  },
+  {
     "id": "blood-and-grape",
     "title": "Blood and Grape",
     "fruit": "grape",
