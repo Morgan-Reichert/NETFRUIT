@@ -73,6 +73,12 @@ export interface Series {
   /* --- populated for AI-generated titles loaded from /catalog.json --- */
   generated?: boolean
   comingSoon?: boolean
+  /** DB series UUID (Supabase-sourced) — used for entitlements/unlock. */
+  dbId?: string
+  /** Access model: 'free' (ads) | 'purchase' (tokens) | 'subscription' (premium). */
+  monetization?: 'free' | 'purchase' | 'subscription'
+  episodeTokenCost?: number
+  inPremium?: boolean
   posterUrl?: string
   episodeManifest?: string
   episodes?: {

@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { UserProvider } from './lib/store'
 import { AuthProvider } from './lib/auth'
 import { ProfilesProvider, useProfiles } from './lib/profiles'
+import { WalletProvider } from './lib/wallet'
 import { useProfilesSync } from './lib/sync'
 import ProfileGate from './components/ProfileGate'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -32,9 +33,11 @@ createRoot(document.getElementById('root')!).render(
         {isStudio ? (
           <StudioApp />
         ) : (
-          <ProfilesProvider>
-            <Shell />
-          </ProfilesProvider>
+          <WalletProvider>
+            <ProfilesProvider>
+              <Shell />
+            </ProfilesProvider>
+          </WalletProvider>
         )}
       </AuthProvider>
     </ErrorBoundary>

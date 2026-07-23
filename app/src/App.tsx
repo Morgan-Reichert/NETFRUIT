@@ -3,6 +3,7 @@ import { CATEGORIES, allSeries, byId, type Series } from './data/series'
 import { buildFeed, matchesCategory, scoreForYou, buildAffinity } from './lib/recommend'
 import { useCatalog } from './lib/catalog'
 import { useUser } from './lib/store'
+import { useWallet, isLocked } from './lib/wallet'
 import { useCloudSync } from './lib/sync'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -16,6 +17,7 @@ import Footer from './components/Footer'
 export default function App() {
   const { state, watch } = useUser()
   const catalogVersion = useCatalog()
+  const wallet = useWallet()
   useCloudSync()
   const [selected, setSelected] = useState<Series | null>(null)
   const [playing, setPlaying] = useState<Series | null>(null)
@@ -27,6 +29,8 @@ export default function App() {
   // Play marks the title watched; generated titles open the episode player.
   // With no explicit episode (hero/card), resume where the viewer left off.
   const handlePlay = (s: Series, epNum?: number) => {
+    // Gated series must be unlocked first — send the viewer to the detail paywall.
+    if (isLocked(s, wallet)) { setSelected(s); return }
     watch(s.id)
     if (s.episodeManifest || s.episodes?.length) {
       const rec = state.watched[s.id]

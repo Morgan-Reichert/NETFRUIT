@@ -3,6 +3,7 @@ import { ChevronDown } from './icons'
 import { useAuth } from '../lib/auth'
 import { avatarUrl, useProfiles } from '../lib/profiles'
 import { enablePush, isPushEnabled, pushBlockedReason, pushSupported } from '../lib/push'
+import { useWallet } from '../lib/wallet'
 
 const LINKS = ['Home', 'Series', 'New & Ripe', 'My Basket', 'Categories']
 
@@ -14,6 +15,7 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
   const [pushMsg, setPushMsg] = useState<string | null>(null)
   const { user, signOut } = useAuth()
   const { active: profile, switchProfile } = useProfiles()
+  const { balance, isPremium, addTokens, setPremium } = useWallet()
 
   useEffect(() => { isPushEnabled().then(setPushOn) }, [])
   const toggleNotifs = async () => {
@@ -91,6 +93,13 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
             <span className="hidden md:inline">Search fruits…</span>
           </button>
 
+          {/* Token balance (signed-in) */}
+          {user && (
+            <span className="hidden items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-sm font-bold text-cream sm:inline-flex" title="Solde de jetons">
+              🪙 {balance}
+            </span>
+          )}
+
           {/* Bell */}
           <button aria-label="Notifications" className="relative text-cream/70 transition hover:text-cream">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -138,6 +147,21 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
                   </button>
                   {pushMsg && (
                     <p className="px-4 pb-3 pt-0 text-xs leading-snug text-cream/55">{pushMsg}</p>
+                  )}
+                  {user && (
+                    <>
+                      <div className="flex w-full items-center justify-between px-4 py-2.5 text-sm text-cream/80">
+                        <span>🪙 {balance} jetons</span>
+                        <button onClick={() => addTokens(100)} className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-bold hover:bg-white/20">+100</button>
+                      </div>
+                      <button
+                        onClick={() => setPremium(!isPremium)}
+                        className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
+                      >
+                        <span>💎 Premium</span>
+                        <span className={isPremium ? 'text-lime' : 'text-cream/40'}>{isPremium ? 'Actif' : 'Activer'}</span>
+                      </button>
+                    </>
                   )}
                   {user ? (
                     <button

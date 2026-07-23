@@ -77,3 +77,78 @@ create table if not exists payouts (
 alter table payouts enable row level security;
 drop policy if exists "payouts creator read" on payouts;
 create policy "payouts creator read" on payouts for select using (creator_id = auth.uid() or is_admin());
+
+-- ============================================================================
+-- SIMULATION RPCs (no Stripe yet) — wallet, top-up, premium, unlock.
+-- SECURITY DEFINER so token math + creator credit happen server-side, safely.
+-- ============================================================================
+
+-- Create the caller's wallet with 100 starter tokens on first touch.
+create or replace function ensure_wallet()
+returns wallets language plpgsql security definer as $$
+declare w wallets;
+begin
+  insert into wallets (user_id, tokens_balance) values (auth.uid(), 100)
+    on conflict (user_id) do nothing;
+  select * into w from wallets where user_id = auth.uid();
+  return w;
+end $$;
+
+-- Simulated top-up (Stripe will replace the funding source later).
+create or replace function add_tokens(n int)
+returns wallets language plpgsql security definer as $$
+declare w wallets;
+begin
+  insert into wallets (user_id, tokens_balance) values (auth.uid(), greatest(0, n))
+    on conflict (user_id) do update set tokens_balance = wallets.tokens_balance + greatest(0, n), updated_at = now();
+  insert into transactions(user_id, amount_units, currency, type, gateway)
+    values (auth.uid(), greatest(0, n), 'tokens', 'TOKEN_PURCHASE', 'SIMULATION');
+  select * into w from wallets where user_id = auth.uid();
+  return w;
+end $$;
+
+-- Simulated premium toggle.
+create or replace function set_premium(on_ boolean)
+returns wallets language plpgsql security definer as $$
+declare w wallets;
+begin
+  insert into wallets (user_id, is_premium) values (auth.uid(), on_)
+    on conflict (user_id) do update set is_premium = on_, updated_at = now();
+  select * into w from wallets where user_id = auth.uid();
+  return w;
+end $$;
+
+-- Unlock a series (via one of its episodes). Premium covers premium series;
+-- token series are bought with tokens and credit the creator 70% (as a tx).
+-- Returns: PREMIUM | ALREADY | UNLOCKED | INSUFFICIENT | NEEDS_PREMIUM | NOTFOUND
+create or replace function unlock_series(sid uuid)
+returns text language plpgsql security definer as $$
+declare cost int; mon text; cid uuid; bal int; prem boolean;
+begin
+  select s.episode_token_cost, s.monetization, s.creator_id into cost, mon, cid
+    from series s where s.id = sid;
+  if mon is null then return 'NOTFOUND'; end if;
+
+  perform ensure_wallet();
+  select tokens_balance, is_premium into bal, prem from wallets where user_id = auth.uid();
+
+  if exists (select 1 from entitlements where user_id = auth.uid() and series_id = sid) then
+    return 'ALREADY';
+  end if;
+
+  if mon = 'free' then
+    insert into entitlements(user_id, series_id, source) values (auth.uid(), sid, 'free') on conflict do nothing;
+    return 'UNLOCKED';
+  elsif mon = 'subscription' then
+    if not prem then return 'NEEDS_PREMIUM'; end if;
+    insert into entitlements(user_id, series_id, source) values (auth.uid(), sid, 'subscription') on conflict do nothing;
+    return 'PREMIUM';
+  else -- purchase (tokens)
+    if bal < cost then return 'INSUFFICIENT'; end if;
+    update wallets set tokens_balance = tokens_balance - cost, updated_at = now() where user_id = auth.uid();
+    insert into entitlements(user_id, series_id, source) values (auth.uid(), sid, 'purchase') on conflict do nothing;
+    insert into transactions(user_id, amount_units, currency, type, gateway, series_id, creator_id)
+      values (auth.uid(), cost, 'tokens', 'EPISODE_UNLOCK', 'SIMULATION', sid, cid);
+    return 'UNLOCKED';
+  end if;
+end $$;

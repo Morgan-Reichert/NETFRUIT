@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { fruitTheme, type Series } from '../data/series'
 import { similarTo } from '../lib/recommend'
 import { useUser } from '../lib/store'
+import { isLocked, useWallet } from '../lib/wallet'
 import Poster from './Poster'
 import { CheckIcon, CloseIcon, PlayIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from './icons'
 
@@ -18,8 +19,24 @@ export default function DetailModal({
   onPlay: (s: Series, ep?: number) => void
 }) {
   const { state, like, dislike, toggleList } = useUser()
+  const wallet = useWallet()
   const [shared, setShared] = useState(false)
   const [seasonTab, setSeasonTab] = useState<number | null>(null)
+  const [unlockMsg, setUnlockMsg] = useState<string | null>(null)
+  const [unlocking, setUnlocking] = useState(false)
+
+  const locked = isLocked(series, wallet)
+  const doUnlock = async () => {
+    if (!series?.dbId) return
+    setUnlocking(true); setUnlockMsg(null)
+    const st = await wallet.unlock(series.dbId)
+    setUnlocking(false)
+    if (st === 'UNLOCKED' || st === 'PREMIUM' || st === 'ALREADY') { onPlay(series) }
+    else if (st === 'INSUFFICIENT') setUnlockMsg('Solde de jetons insuffisant — recharge dans le menu profil.')
+    else if (st === 'NEEDS_PREMIUM') setUnlockMsg('Cette série nécessite l’abonnement Premium (menu profil).')
+    else if (st === 'NO_AUTH') setUnlockMsg('Connecte-toi pour débloquer cette série.')
+    else setUnlockMsg('Impossible de débloquer pour le moment.')
+  }
 
   const share = async () => {
     if (!series) return
@@ -89,6 +106,17 @@ export default function DetailModal({
                     <span className="flex items-center gap-2 rounded-full bg-white/15 px-6 py-2.5 font-bold text-cream ring-1 ring-white/25">
                       Coming soon
                     </span>
+                  ) : locked ? (
+                    <button
+                      onClick={doUnlock}
+                      disabled={unlocking}
+                      className="flex items-center gap-2 rounded-full bg-brand-gradient px-6 py-2.5 font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                    >
+                      {unlocking ? 'Déblocage…'
+                        : series.monetization === 'subscription'
+                          ? '💎 Débloquer avec Premium'
+                          : `🪙 Débloquer · ${series.episodeTokenCost ?? 0} jetons`}
+                    </button>
                   ) : (
                     <button
                       onClick={() => onPlay(series)}
@@ -139,6 +167,7 @@ export default function DetailModal({
                     {shared && <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-cream px-2 py-0.5 text-[11px] font-bold text-ink-950">Lien copié ✓</span>}
                   </button>
                 </div>
+                {unlockMsg && <p className="mt-3 text-sm font-medium text-amber-300">{unlockMsg}</p>}
               </div>
             </div>
 
