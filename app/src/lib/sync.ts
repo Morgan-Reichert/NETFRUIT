@@ -64,11 +64,11 @@ export function useCloudSync() {
  */
 export function useProfilesSync() {
   const { user } = useAuth()
-  const { profiles, hydrate } = useProfiles()
+  const { profiles, deleted, hydrate } = useProfiles()
   const loadedFor = useRef<string | null>(null)
   const timer = useRef<number | null>(null)
 
-  // Load + merge the cloud list once per signed-in account.
+  // Load + merge the cloud list (and tombstones) once per signed-in account.
   useEffect(() => {
     if (!supabase || !user) {
       loadedFor.current = null
@@ -76,19 +76,23 @@ export function useProfilesSync() {
     }
     if (loadedFor.current === user.id) return
     const cloud = user.user_metadata?.profiles
-    if (Array.isArray(cloud) && cloud.length) hydrate(cloud as Profile[])
+    const cloudDeleted = user.user_metadata?.profilesDeleted
+    if ((Array.isArray(cloud) && cloud.length) || (Array.isArray(cloudDeleted) && cloudDeleted.length)) {
+      hydrate((cloud ?? []) as Profile[], (cloudDeleted ?? []) as string[])
+    }
     loadedFor.current = user.id
   }, [user, hydrate])
 
-  // Push the local list up whenever it diverges from what's stored in the cloud.
+  // Push the local list + tombstones up whenever they diverge from the cloud.
   useEffect(() => {
     if (!supabase || !user || loadedFor.current !== user.id) return
-    const cloud = JSON.stringify(user.user_metadata?.profiles ?? [])
-    if (JSON.stringify(profiles) === cloud) return
+    const cloudProfiles = JSON.stringify(user.user_metadata?.profiles ?? [])
+    const cloudDeleted = JSON.stringify(user.user_metadata?.profilesDeleted ?? [])
+    if (JSON.stringify(profiles) === cloudProfiles && JSON.stringify(deleted) === cloudDeleted) return
     if (timer.current) window.clearTimeout(timer.current)
     timer.current = window.setTimeout(() => {
-      supabase!.auth.updateUser({ data: { profiles } }).then(() => {})
+      supabase!.auth.updateUser({ data: { profiles, profilesDeleted: deleted } }).then(() => {})
     }, 900)
     return () => { if (timer.current) window.clearTimeout(timer.current) }
-  }, [profiles, user])
+  }, [profiles, deleted, user])
 }

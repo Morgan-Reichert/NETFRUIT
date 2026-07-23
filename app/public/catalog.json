@@ -125,12 +125,55 @@
       "Bingeable"
     ],
     "synopsis": "At JuiceHop, the city's hottest juice bar, falling in love means literally getting blended. Fraisy, a hopeless-romantic strawberry, is stuck sharing a blender with Zesto, a cynical lemon. They can't stand each other. Obviously, they make the perfect smoothie.",
-    "runtime": "Season 1 — coming soon",
+    "runtime": "5 episodes",
     "generated": true,
     "newBadge": true,
     "featured": false,
-    "comingSoon": true,
-    "posterUrl": "/generated/crush/poster.jpg"
+    "posterUrl": "/generated/crush/poster.jpg",
+    "episodeManifest": "/generated/crush/e1/episode.json",
+    "producedBy": "grok (manual)",
+    "episodes": [
+      {
+        "number": 1,
+        "season": 1,
+        "ep": 1,
+        "title": "Sour Start",
+        "manifest": "/generated/crush/e1/episode.json",
+        "durationSec": 31
+      },
+      {
+        "number": 2,
+        "season": 1,
+        "ep": 2,
+        "title": "Same Blender",
+        "manifest": "/generated/crush/e2/episode.json",
+        "durationSec": 30
+      },
+      {
+        "number": 3,
+        "season": 1,
+        "ep": 3,
+        "title": "The Recipe",
+        "manifest": "/generated/crush/e3/episode.json",
+        "durationSec": 26
+      },
+      {
+        "number": 4,
+        "season": 1,
+        "ep": 4,
+        "title": "Pulp Fiction",
+        "manifest": "/generated/crush/e4/episode.json",
+        "durationSec": 30
+      },
+      {
+        "number": 5,
+        "season": 1,
+        "ep": 5,
+        "title": "Crush",
+        "manifest": "/generated/crush/e5/episode.json",
+        "durationSec": 32
+      }
+    ]
   },
   {
     "id": "blood-and-grape",

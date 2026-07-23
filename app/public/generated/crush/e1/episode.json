@@ -1,0 +1,69 @@
+{
+  "title": "Crush — Ep. 1: Sour Start",
+  "bakedAudio": true,
+  "langs": [],
+  "videoUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/crush/e1.mp4",
+  "shots": [
+    {
+      "speaker": "",
+      "imageUrl": "/generated/crush/poster.jpg",
+      "clipUrl": "https://yvismbsttkoeghbfarhw.supabase.co/storage/v1/object/public/episodes/crush/e1.mp4",
+      "voiceUrls": {},
+      "captions": {},
+      "durationSec": 31
+    }
+  ],
+  "subtitles": {
+    "fr": [
+      {
+        "start": 1,
+        "end": 11,
+        "text": "Premier jour de Fraisy au JuiceHop."
+      },
+      {
+        "start": 12,
+        "end": 22,
+        "text": "Elle renverse tout sur Zesto."
+      },
+      {
+        "start": 23,
+        "end": 31,
+        "text": "Ennemis au premier regard."
+      }
+    ],
+    "en": [
+      {
+        "start": 1,
+        "end": 11,
+        "text": "Fraisy's first day at JuiceHop."
+      },
+      {
+        "start": 12,
+        "end": 22,
+        "text": "She spills juice all over Zesto."
+      },
+      {
+        "start": 23,
+        "end": 31,
+        "text": "Enemies at first sight."
+      }
+    ],
+    "es": [
+      {
+        "start": 1,
+        "end": 11,
+        "text": "Primer día de Fraisy en JuiceHop."
+      },
+      {
+        "start": 12,
+        "end": 22,
+        "text": "Derrama el jugo sobre Zesto."
+      },
+      {
+        "start": 23,
+        "end": 31,
+        "text": "Enemigos a primera vista."
+      }
+    ]
+  }
+}
