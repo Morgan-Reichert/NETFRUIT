@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Series } from '../data/series'
 import { useUser } from '../lib/store'
+import { supabase } from '../lib/supabase'
 import {
   CaptionsIcon, ChevronDown, CloseIcon, GaugeIcon, MusicIcon, PauseIcon,
   PlayIcon, ReplayIcon, SettingsIcon, VolumeIcon,
@@ -96,6 +97,7 @@ export default function EpisodePlayer({
   const timerRef = useRef<number | null>(null)
   const lastSaveRef = useRef(0)   // throttle progress writes
   const resumedRef = useRef(false) // seek-to-resume only once per episode load
+  const viewedRef = useRef(false)  // count a view only once per episode load
 
   // Background music (mood-matched, looping) set up per opened series.
   useEffect(() => {
@@ -147,7 +149,7 @@ export default function EpisodePlayer({
   // Load the current episode's manifest — inline (DB-sourced) or fetched JSON.
   useEffect(() => {
     setManifest(null); setI(0); setShown(0); setCurTime(0); setDur(0); setDone(false); setPaused(false)
-    setAutoIn(null); resumedRef.current = false; lastSaveRef.current = 0
+    setAutoIn(null); resumedRef.current = false; lastSaveRef.current = 0; viewedRef.current = false
     if (!series) return
     if (inlineManifest) { setManifest(inlineManifest); return }
     if (!manifestUrl) return
@@ -299,6 +301,11 @@ export default function EpisodePlayer({
                         const t = e.currentTarget.currentTime
                         const d = e.currentTarget.duration || 0
                         setCurTime(t)
+                        // Count one view once playback has genuinely started.
+                        if (!viewedRef.current && t > 1 && currentEp?.id && supabase) {
+                          viewedRef.current = true
+                          supabase.rpc('bump_view', { ep: currentEp.id }).then(() => {}, () => {})
+                        }
                         // Persist resume position (throttled to ~5s) for Continue Watching.
                         if (series && d > 0 && t - lastSaveRef.current >= 5) {
                           lastSaveRef.current = t

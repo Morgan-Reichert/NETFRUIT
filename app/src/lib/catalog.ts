@@ -12,6 +12,7 @@ function fromDbRow(r: Record<string, any>): Series {
   const episodes = eps.map((e) => ({
     number: e.number,
     title: e.title,
+    id: e.id,
     durationSec: e.duration_sec ?? 0,
     season: e.season ?? 1,
     ep: e.ep ?? e.number,

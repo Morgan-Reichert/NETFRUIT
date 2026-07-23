@@ -78,6 +78,8 @@ export interface Series {
   episodes?: {
     number: number
     title: string
+    /** DB episode UUID (present for Supabase-sourced episodes) — used for view stats. */
+    id?: string
     manifest?: string
     /** Inline manifest (DB-sourced episodes) — used instead of fetching `manifest`. */
     manifestData?: unknown
