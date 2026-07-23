@@ -6,6 +6,7 @@
   "framework": null,
   "rewrites": [
     { "source": "/studio", "destination": "/index.html" },
-    { "source": "/studio/:path*", "destination": "/index.html" }
+    { "source": "/studio/:path*", "destination": "/index.html" },
+    { "source": "/c/:path*", "destination": "/index.html" }
   ]
 }

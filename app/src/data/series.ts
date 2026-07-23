@@ -81,6 +81,9 @@ export interface Series {
   inPremium?: boolean
   posterUrl?: string
   episodeManifest?: string
+  /** Creator handle/name (Supabase-sourced) — links to the public creator page. */
+  creatorHandle?: string
+  creatorName?: string
   episodes?: {
     number: number
     title: string

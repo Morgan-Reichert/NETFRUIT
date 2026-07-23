@@ -56,6 +56,8 @@ function fromDbRow(r: Record<string, any>): Series {
     episodes: episodes.length ? episodes : undefined,
     episodeManifest: undefined,
     producedBy: r.creator?.display_name ?? 'NETFRUIT',
+    creatorHandle: r.creator?.handle,
+    creatorName: r.creator?.display_name,
   } as Series
 }
 

@@ -10,6 +10,7 @@ import { useProfilesSync } from './lib/sync'
 import ProfileGate from './components/ProfileGate'
 import ErrorBoundary from './components/ErrorBoundary'
 import StudioApp from './studio/StudioApp'
+import CreatorPage from './CreatorPage'
 
 function Shell() {
   const { activeId } = useProfiles()
@@ -22,9 +23,12 @@ function Shell() {
   )
 }
 
-// Creator Studio lives at /studio (same app, shared auth — later mapped to
-// creator.netfruit.fun). It needs auth but NOT a viewer "who's watching" profile.
-const isStudio = typeof window !== 'undefined' && window.location.pathname.startsWith('/studio')
+// Route by path: /studio = Creator Studio, /c/<handle> = public creator page,
+// everything else = the viewer app. Studio/creator pages need auth but NOT a
+// viewer "who's watching" profile.
+const path = typeof window !== 'undefined' ? window.location.pathname : '/'
+const isStudio = path.startsWith('/studio')
+const isCreatorPage = path.startsWith('/c/')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -32,6 +36,8 @@ createRoot(document.getElementById('root')!).render(
       <AuthProvider>
         {isStudio ? (
           <StudioApp />
+        ) : isCreatorPage ? (
+          <CreatorPage />
         ) : (
           <WalletProvider>
             <ProfilesProvider>

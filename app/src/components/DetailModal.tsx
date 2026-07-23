@@ -196,6 +196,14 @@ export default function DetailModal({
                   <span className="text-cream/50">Format: </span>
                   <span className="text-cream/90">{series.runtime}</span>
                 </p>
+                {series.creatorHandle && (
+                  <p>
+                    <span className="text-cream/50">Créateur : </span>
+                    <a href={`/c/${series.creatorHandle}`} className="font-medium text-fruit-red-bright hover:underline">
+                      {series.creatorName ?? series.producedBy}
+                    </a>
+                  </p>
+                )}
               </div>
             </div>
 
