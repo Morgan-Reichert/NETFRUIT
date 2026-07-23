@@ -149,11 +149,11 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <div className="rounded-xl border border-dashed border-white/15 p-10 text-center text-cream/50">{children}</div>
 }
 function Brand({ small }: { small?: boolean }) {
-  const h = small ? 'h-6' : 'h-9'
+  // Desktop: N mark + CREATOR wordmark. Mobile: CREATOR only.
   return (
     <span className="inline-flex items-center gap-2 align-middle">
-      <img src="/brand/netfruit-long.png" alt="NETFRUIT" className={`${h} w-auto`} />
-      <img src="/brand/creator.png" alt="CREATOR" className={`${h} w-auto`} />
+      <img src="/brand/netfruit-mini.png" alt="NETFRUIT" className={`hidden w-auto sm:block ${small ? 'h-7' : 'h-11'}`} />
+      <img src="/brand/creator.png" alt="CREATOR" className={`w-auto ${small ? 'h-6' : 'h-9'}`} />
     </span>
   )
 }
