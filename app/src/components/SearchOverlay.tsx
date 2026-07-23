@@ -34,9 +34,22 @@ export default function SearchOverlay({
     const term = q.trim().toLowerCase()
     const pool = allSeries()
     if (!term) return pool.slice(0, 18)
-    return pool.filter((s) =>
-      [s.title, s.fruit, ...s.genres, ...s.tags].some((f) => f.toLowerCase().includes(term)),
-    )
+    // Score each title so the best matches (title first) rank on top.
+    const score = (s: Series): number => {
+      const t = s.title.toLowerCase()
+      if (t === term) return 100
+      if (t.startsWith(term)) return 80
+      if (t.includes(term)) return 60
+      if ([s.fruit, ...s.genres, ...s.tags].some((f) => f.toLowerCase().includes(term))) return 40
+      if ((s.synopsis ?? '').toLowerCase().includes(term)) return 20
+      if ((s.producedBy ?? '').toLowerCase().includes(term)) return 15
+      return 0
+    }
+    return pool
+      .map((s) => [s, score(s)] as const)
+      .filter(([, sc]) => sc > 0)
+      .sort((a, b) => b[1] - a[1])
+      .map(([s]) => s)
   }, [q, open])
 
   return (

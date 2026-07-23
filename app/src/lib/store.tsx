@@ -10,6 +10,8 @@ import {
 export interface WatchRecord {
   progress: number // 0..1
   updatedAt: number // event counter (monotonic, avoids Date in render)
+  ep?: number // last episode watched (for resume)
+  time?: number // seconds into that episode (for resume)
 }
 
 export interface UserState {
@@ -30,6 +32,7 @@ const EMPTY: UserState = {
 
 type Action =
   | { type: 'watch'; id: string; progress?: number }
+  | { type: 'progress'; id: string; progress: number; ep: number; time: number }
   | { type: 'like'; id: string }
   | { type: 'dislike'; id: string }
   | { type: 'toggleList'; id: string }
@@ -45,7 +48,17 @@ function reducer(state: UserState, action: Action): UserState {
       return {
         ...state,
         clock,
-        watched: { ...state.watched, [action.id]: { progress, updatedAt: clock } },
+        watched: { ...state.watched, [action.id]: { ...state.watched[action.id], progress, updatedAt: clock } },
+      }
+    }
+    case 'progress': {
+      return {
+        ...state,
+        clock,
+        watched: {
+          ...state.watched,
+          [action.id]: { progress: action.progress, ep: action.ep, time: action.time, updatedAt: clock },
+        },
       }
     }
     case 'like': {
@@ -98,6 +111,7 @@ function load(profileId: string): UserState {
 interface Ctx {
   state: UserState
   watch: (id: string, progress?: number) => void
+  saveProgress: (id: string, p: { progress: number; ep: number; time: number }) => void
   like: (id: string) => void
   dislike: (id: string) => void
   toggleList: (id: string) => void
@@ -122,6 +136,7 @@ export function UserProvider({ children, profileId = 'default' }: { children: Re
     () => ({
       state,
       watch: (id, progress) => dispatch({ type: 'watch', id, progress }),
+      saveProgress: (id, p) => dispatch({ type: 'progress', id, ...p }),
       like: (id) => dispatch({ type: 'like', id }),
       dislike: (id) => dispatch({ type: 'dislike', id }),
       toggleList: (id) => dispatch({ type: 'toggleList', id }),

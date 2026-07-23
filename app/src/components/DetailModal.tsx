@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { fruitTheme, type Series } from '../data/series'
 import { similarTo } from '../lib/recommend'
 import { useUser } from '../lib/store'
@@ -18,6 +18,17 @@ export default function DetailModal({
   onPlay: (s: Series, ep?: number) => void
 }) {
   const { state, like, dislike, toggleList } = useUser()
+  const [shared, setShared] = useState(false)
+
+  const share = async () => {
+    if (!series) return
+    const url = `${window.location.origin}/?s=${series.id}`
+    const data = { title: `${series.title} · NETFRUIT`, text: series.synopsis, url }
+    try {
+      if (navigator.share) await navigator.share(data)
+      else { await navigator.clipboard.writeText(url); setShared(true); setTimeout(() => setShared(false), 1800) }
+    } catch { /* user cancelled */ }
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -111,6 +122,18 @@ export default function DetailModal({
                     aria-label="Not for me"
                   >
                     <ThumbDownIcon size={19} />
+                  </button>
+                  <button
+                    onClick={share}
+                    className="relative grid h-11 w-11 place-items-center rounded-full border border-white/30 text-cream transition hover:border-white/60"
+                    aria-label="Partager"
+                    title="Partager"
+                  >
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+                      <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+                    </svg>
+                    {shared && <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-cream px-2 py-0.5 text-[11px] font-bold text-ink-950">Lien copié ✓</span>}
                   </button>
                 </div>
               </div>

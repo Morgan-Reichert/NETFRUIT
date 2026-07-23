@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CATEGORIES, allSeries, byId, type Series } from './data/series'
 import { buildFeed, matchesCategory, scoreForYou, buildAffinity } from './lib/recommend'
 import { useCatalog } from './lib/catalog'
@@ -25,13 +25,33 @@ export default function App() {
   const [category, setCategory] = useState('All')
 
   // Play marks the title watched; generated titles open the episode player.
-  const handlePlay = (s: Series, epNum = 1) => {
+  // With no explicit episode (hero/card), resume where the viewer left off.
+  const handlePlay = (s: Series, epNum?: number) => {
     watch(s.id)
     if (s.episodeManifest || s.episodes?.length) {
-      setPlayingEp(epNum)
+      const rec = state.watched[s.id]
+      const resumeEp = rec && rec.progress < 0.98 ? rec.ep : undefined
+      setPlayingEp(epNum ?? resumeEp ?? 1)
       setPlaying(s)
     } else setSelected(s)
   }
+
+  // Deep links: /?s=<slug> opens a series page, /?play=<slug> starts playback.
+  // Runs once the catalog is loaded so byId() can resolve.
+  const linkHandled = useRef(false)
+  useEffect(() => {
+    if (linkHandled.current) return
+    const params = new URLSearchParams(window.location.search)
+    const sid = params.get('play') || params.get('s')
+    if (!sid) return
+    const s = byId(sid)
+    if (!s) return
+    linkHandled.current = true
+    if (params.get('play')) handlePlay(s)
+    else setSelected(s)
+    window.history.replaceState({}, '', window.location.pathname)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalogVersion])
 
   // Feed reacts to every like / watch / list change, and to the async catalog load.
   const feed = useMemo(() => buildFeed(state), [state, catalogVersion])

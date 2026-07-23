@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Series } from '../data/series'
+import { useUser } from '../lib/store'
 import {
   CaptionsIcon, ChevronDown, CloseIcon, GaugeIcon, MusicIcon, PauseIcon,
   PlayIcon, ReplayIcon, SettingsIcon, VolumeIcon,
@@ -75,7 +76,9 @@ export default function EpisodePlayer({
   const [ep, setEp] = useState(startEp)
   const [music, setMusic] = useState(true)
   const [curTime, setCurTime] = useState(0)
+  const [autoIn, setAutoIn] = useState<number | null>(null) // autoplay countdown seconds
 
+  const { state, saveProgress } = useUser()
   const episodeList = series?.episodes ?? []
   const currentEp = episodeList.find((e) => e.number === ep)
   const inlineManifest = currentEp?.manifestData as Manifest | undefined
@@ -85,6 +88,8 @@ export default function EpisodePlayer({
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const musicRef = useRef<HTMLAudioElement | null>(null)
   const timerRef = useRef<number | null>(null)
+  const lastSaveRef = useRef(0)   // throttle progress writes
+  const resumedRef = useRef(false) // seek-to-resume only once per episode load
 
   // Background music (mood-matched, looping) set up per opened series.
   useEffect(() => {
@@ -136,6 +141,7 @@ export default function EpisodePlayer({
   // Load the current episode's manifest — inline (DB-sourced) or fetched JSON.
   useEffect(() => {
     setManifest(null); setI(0); setShown(0); setCurTime(0); setDone(false); setPaused(false)
+    setAutoIn(null); resumedRef.current = false; lastSaveRef.current = 0
     if (!series) return
     if (inlineManifest) { setManifest(inlineManifest); return }
     if (!manifestUrl) return
@@ -146,6 +152,18 @@ export default function EpisodePlayer({
       .catch(() => !cancelled && setManifest({ title: series.title, shots: [], videoUrl: null }))
     return () => { cancelled = true }
   }, [series, manifestUrl, inlineManifest])
+
+  // Autoplay: when an episode ends and another exists, start a cancelable countdown.
+  useEffect(() => {
+    if (done && hasNext) setAutoIn(6)
+    else setAutoIn(null)
+  }, [done, hasNext])
+  useEffect(() => {
+    if (autoIn === null) return
+    if (autoIn <= 0) { setEp((k) => k + 1); return }
+    const t = window.setTimeout(() => setAutoIn(autoIn - 1), 1000)
+    return () => window.clearTimeout(t)
+  }, [autoIn])
 
   const langs: Lang[] = manifest?.langs ?? ['en', 'fr', 'es']
 
@@ -244,11 +262,30 @@ export default function EpisodePlayer({
                       muted={!baked}
                       loop={!baked}
                       playsInline
-                      onTimeUpdate={baked ? (e) => setCurTime(e.currentTarget.currentTime) : undefined}
-                      onEnded={baked ? () => { clearTimer(); next() } : undefined}
+                      onTimeUpdate={baked ? (e) => {
+                        const t = e.currentTarget.currentTime
+                        const d = e.currentTarget.duration || 0
+                        setCurTime(t)
+                        // Persist resume position (throttled to ~5s) for Continue Watching.
+                        if (series && d > 0 && t - lastSaveRef.current >= 5) {
+                          lastSaveRef.current = t
+                          saveProgress(series.id, { progress: Math.min(0.99, t / d), ep, time: t })
+                        }
+                      } : undefined}
+                      onEnded={baked ? () => {
+                        clearTimer()
+                        if (series) saveProgress(series.id, { progress: hasNext ? 0.99 : 1, ep, time: 0 })
+                        next()
+                      } : undefined}
                       onLoadedMetadata={
                         baked
                           ? (e) => {
+                              // Resume: if this is the saved episode, seek to where we left off.
+                              const rec = series ? state.watched[series.id] : undefined
+                              if (!resumedRef.current && rec?.ep === ep && (rec.time ?? 0) > 3 && (rec.progress ?? 0) < 0.98) {
+                                try { e.currentTarget.currentTime = rec.time! } catch { /* noop */ }
+                              }
+                              resumedRef.current = true
                               // Safety net keyed to the REAL file duration (never the manifest),
                               // in case 'ended' doesn't fire. Generous so it never pre-empts.
                               clearTimer()
@@ -317,13 +354,16 @@ export default function EpisodePlayer({
                 <div className="text-center">
                   <p className="font-display text-3xl font-extrabold text-cream">To be continued…</p>
                   <p className="mt-1 text-cream/60">{manifest?.title}</p>
+                  {autoIn !== null && hasNext && (
+                    <p className="mt-3 text-sm text-cream/70">Prochain épisode dans <span className="font-bold text-cream">{autoIn}s</span> · <button onClick={() => setAutoIn(null)} className="underline hover:text-cream">Annuler</button></p>
+                  )}
                   <div className="mt-5 flex items-center justify-center gap-3">
                     {hasNext && (
                       <button
                         onClick={() => setEp((n) => n + 1)}
                         className="inline-flex items-center gap-2 rounded-full bg-fruit-red-bright px-6 py-2.5 font-bold text-white transition hover:brightness-110"
                       >
-                        <PlayIcon size={18} /> Next episode
+                        <PlayIcon size={18} /> {autoIn !== null ? 'Regarder maintenant' : 'Next episode'}
                       </button>
                     )}
                     <button onClick={restart} className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 font-bold transition ${hasNext ? 'border border-white/25 text-cream hover:border-white/50' : 'bg-fruit-red-bright text-white hover:brightness-110'}`}>
