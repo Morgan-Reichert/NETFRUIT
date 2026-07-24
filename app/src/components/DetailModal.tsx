@@ -4,6 +4,7 @@ import { fruitTheme, type Series } from '../data/series'
 import { similarTo } from '../lib/recommend'
 import { useUser } from '../lib/store'
 import { isLocked, useWallet } from '../lib/wallet'
+import { createTicket } from '../lib/admin'
 import Poster from './Poster'
 import { CheckIcon, CloseIcon, CoinIcon, GemIcon, PlayIcon, PlusIcon, ThumbDownIcon, ThumbUpIcon } from './icons'
 
@@ -159,6 +160,18 @@ export default function DetailModal({
                     aria-label="Not for me"
                   >
                     <ThumbDownIcon size={19} />
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const reason = window.prompt(`Signaler « ${series.title} » — quel est le problème ?`)
+                      if (!reason) return
+                      const r = await createTicket({ category: 'report', subject: `Signalement : ${series.title}`, body: reason, target_type: 'series', target_id: series.dbId })
+                      setUnlockMsg(r.error ?? 'Merci, ton signalement a été transmis à la modération.')
+                    }}
+                    className="grid h-11 w-11 place-items-center rounded-full border border-white/30 text-cream transition hover:border-white/60"
+                    aria-label="Signaler" title="Signaler"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21V4h13l-2 4 2 4H4" /></svg>
                   </button>
                   <button
                     onClick={share}

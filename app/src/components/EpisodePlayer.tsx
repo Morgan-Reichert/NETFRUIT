@@ -305,6 +305,15 @@ export default function EpisodePlayer({
                         if (!viewedRef.current && t > 1 && currentEp?.id && supabase) {
                           viewedRef.current = true
                           supabase.rpc('bump_view', { ep: currentEp.id }).then(() => {}, () => {})
+                          // Record watch history (powers account metrics) for signed-in viewers.
+                          supabase.auth.getUser().then(({ data }) => {
+                            if (data.user && series?.dbId && currentEp?.id && supabase) {
+                              supabase.from('watch_history').insert({
+                                user_id: data.user.id, episode_id: currentEp.id, series_id: series.dbId,
+                                watch_time_sec: Math.round(d) || 0, unlocked_via: 'FREE',
+                              }).then(() => {}, () => {})
+                            }
+                          })
                         }
                         // Persist resume position (throttled to ~5s) for Continue Watching.
                         if (series && d > 0 && t - lastSaveRef.current >= 5) {
