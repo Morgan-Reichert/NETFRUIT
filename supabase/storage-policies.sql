@@ -15,11 +15,16 @@ create policy "creator upload own folder" on storage.objects
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- ...and update/replace files in their own folder.
+-- ...and update/replace files in their own folder. WITH CHECK is required so
+-- that `upsert: true` (INSERT ... ON CONFLICT UPDATE) is allowed to overwrite.
 drop policy if exists "creator update own folder" on storage.objects;
 create policy "creator update own folder" on storage.objects
   for update to authenticated
   using (
+    bucket_id = 'episodes'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  )
+  with check (
     bucket_id = 'episodes'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
@@ -33,7 +38,8 @@ create policy "creator delete own folder" on storage.objects
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Public read is provided by the bucket being public; if not, uncomment:
--- drop policy if exists "public read episodes" on storage.objects;
--- create policy "public read episodes" on storage.objects
---   for select using (bucket_id = 'episodes');
+-- SELECT policy is REQUIRED for `upsert: true` uploads (the storage API reads
+-- the existing row to resolve the conflict). The bucket is public anyway.
+drop policy if exists "episodes read objects" on storage.objects;
+create policy "episodes read objects" on storage.objects
+  for select using (bucket_id = 'episodes');

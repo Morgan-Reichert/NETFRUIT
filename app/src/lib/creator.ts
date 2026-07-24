@@ -231,8 +231,11 @@ export async function deleteEpisode(id: string) {
 export async function uploadToBucket(creatorId: string, slug: string, name: string, file: Blob): Promise<string> {
   await ensureSession()
   const path = `${creatorId}/${slug}/${name}`
+  // MediaRecorder blobs carry a type like "video/webm;codecs=vp8,opus" — strip
+  // the codec params, some storage backends reject the parameterised value.
+  const contentType = (file.type || 'application/octet-stream').split(';')[0]
   const { error } = await sb().storage.from('episodes').upload(path, file, {
-    upsert: true, contentType: file.type || 'application/octet-stream',
+    upsert: true, contentType,
   })
   if (error) throw new Error(error.message)
   return sb().storage.from('episodes').getPublicUrl(path).data.publicUrl
