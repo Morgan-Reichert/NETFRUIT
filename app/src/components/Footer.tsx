@@ -1,8 +1,14 @@
+const HELP_URL = 'https://stariax.tech/help'
 const COLS: Record<string, string[]> = {
   Watch: ['New & Ripe', 'Originals', 'Top Squeezed', 'My Basket', 'Coming Soon'],
   NETFRUIT: ['About', 'Careers', 'Press', 'Fruit Blog', 'Investors'],
-  Support: ['Help Center', 'Account', 'Devices', 'Contact', 'Accessibility'],
+  Support: ['Centre d’aide', 'Signaler un bug', 'Faire une demande', 'FAQ', 'Contact'],
   Legal: ['Terms of Juice', 'Privacy', 'Cookie Preferences', 'Corporate Info'],
+}
+// External links that resolve to the Stariax help/support portal.
+const LINK_HREF: Record<string, string> = {
+  'Centre d’aide': HELP_URL, 'Signaler un bug': HELP_URL, 'Faire une demande': HELP_URL,
+  FAQ: HELP_URL, Contact: HELP_URL,
 }
 
 export default function Footer() {
@@ -43,7 +49,12 @@ export default function Footer() {
               <ul className="space-y-2 text-sm text-cream/50">
                 {links.map((l) => (
                   <li key={l}>
-                    <a href="#" className="transition hover:text-cream">{l}</a>
+                    <a
+                      href={LINK_HREF[l] ?? '#'}
+                      target={LINK_HREF[l] ? '_blank' : undefined}
+                      rel={LINK_HREF[l] ? 'noreferrer' : undefined}
+                      className="transition hover:text-cream"
+                    >{l}</a>
                   </li>
                 ))}
               </ul>

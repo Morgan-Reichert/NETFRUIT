@@ -149,6 +149,14 @@ export default function Navbar({ onAuthClick, onSearchClick }: { onAuthClick: ()
                   {pushMsg && (
                     <p className="px-4 pb-3 pt-0 text-xs leading-snug text-cream/55">{pushMsg}</p>
                   )}
+                  <a
+                    href="https://stariax.tech/help"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block w-full px-4 py-2.5 text-left text-sm text-cream/80 transition hover:bg-white/5 hover:text-cream"
+                  >
+                    Aide &amp; support
+                  </a>
                   {user && (
                     <>
                       <div className="flex w-full items-center justify-between px-4 py-2.5 text-sm text-cream/80">

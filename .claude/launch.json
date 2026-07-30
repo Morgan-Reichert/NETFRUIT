@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "app", "run", "dev", "--", "--port", "5199"],
       "port": 5199
+    },
+    {
+      "name": "amozon",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/morganreichert/Desktop/amozon", "run", "dev"],
+      "port": 5178
     }
   ]
 }
